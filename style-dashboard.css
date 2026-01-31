@@ -54,77 +54,64 @@ body {
 }
 
 /* Header */
-header {
-    background-color: rgba(243, 245, 249, 0.85);
-    backdrop-filter: blur(12px); /* Glass effect */
-    -webkit-backdrop-filter: blur(12px);
-    padding: 16px 20px;
-    box-shadow: 0 6px 20px rgba(64, 87, 81, 0.05);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    transition: all 0.3s ease;
-}
-
-.header-top {
+.app-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    padding: 16px 20px;
+    background-color: rgba(243, 245, 249, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(188, 217, 221, 0.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.brand {
+.app-header__brand {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.brand-logo {
-    width: 64px;
-    height: 64px;
+.app-header__logo {
+    width: 52px;
+    height: 52px;
     border-radius: var(--radius);
     object-fit: cover;
     background-color: #E9EFF6;
-    box-shadow: 0 8px 18px rgba(64, 87, 81, 0.12);
-    transition: transform 0.4s var(--ease-elastic);
 }
 
-.brand:hover .brand-logo {
-    transform: rotate(-5deg) scale(1.05);
+.app-header__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #405751;
+    letter-spacing: 0.02em;
 }
 
-nav {
+.app-header__nav {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
 }
 
-nav a {
+.app-header__nav a {
     text-decoration: none;
     color: #405751;
     font-weight: 500;
-    padding: 10px 16px;
+    padding: 8px 14px;
     border-radius: var(--radius);
-    font-size: 17px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    font-size: 16px;
+    transition: all 0.2s ease;
 }
 
-nav a:hover {
+.app-header__nav a:hover {
     background-color: rgba(233, 239, 246, 0.8);
-    color: #2c3e3a;
-    transform: translateY(-1px);
 }
 
-nav a.active {
+.app-header__nav a.active {
     background-color: #405751;
     color: #F3F5F9;
-    box-shadow: 0 4px 12px rgba(64, 87, 81, 0.2);
-}
-
-nav a:active {
-    transform: scale(0.95);
 }
 
 .lucide {
@@ -439,6 +426,7 @@ main {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    line-height: 1.2;
 }
 
 .appointment-block--week .appt-time {
@@ -473,14 +461,19 @@ main {
     align-items: flex-start;
     justify-content: flex-start;
     padding-top: 6px;
+    padding-left: 10px;
+    min-height: 40px;
+    overflow: hidden;
 }
 
 .calendar.mode-week .appointment-block::after {
     top: 0;
     bottom: 0;
+    left: 0;
     right: auto;
     width: 4px;
     height: auto;
+    border-radius: var(--radius) 0 0 var(--radius);
 }
 
 .appointment-block:hover {

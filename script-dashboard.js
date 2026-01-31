@@ -124,7 +124,7 @@ function addAppointmentBlocks(dayElement, appointments = [], variant = 'month') 
         if (isWeekView) {
             const startMinutes = appointment.startMinutes - WEEK_START_HOUR * 60;
             const top = Math.max(0, (startMinutes / totalMinutes) * availableHeight);
-            const height = Math.max(18, (appointment.duration / totalMinutes) * availableHeight);
+            const height = Math.max(42, (appointment.duration / totalMinutes) * availableHeight);
             appointmentEl.style.top = `${top}px`;
             appointmentEl.style.height = `${height}px`;
             appointmentEl.style.maxHeight = `${availableHeight - top}px`;
@@ -284,6 +284,12 @@ function renderWeekView() {
     }
     const monthAppointments = appointmentsCache.get(monthKey);
 
+    const weekEndMonthKey = `${weekEnd.getFullYear()}-${String(weekEnd.getMonth() + 1).padStart(2, '0')}`;
+    if (weekEndMonthKey !== monthKey && !appointmentsCache.has(weekEndMonthKey)) {
+        appointmentsCache.set(weekEndMonthKey, generateAppointmentsForMonth(weekEnd.getFullYear(), weekEnd.getMonth()));
+    }
+    const nextMonthAppointments = appointmentsCache.get(weekEndMonthKey);
+
     const startLabel = weekStart.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric'
@@ -320,7 +326,10 @@ function renderWeekView() {
             dayElement.classList.add('today');
         }
 
-        addAppointmentBlocks(dayElement, monthAppointments[dateKey], 'week');
+        const appointmentSource = weekEndMonthKey === monthKey
+            ? monthAppointments
+            : (dateKey.startsWith(monthKey) ? monthAppointments : nextMonthAppointments);
+        addAppointmentBlocks(dayElement, appointmentSource[dateKey], 'week');
         dayElement.addEventListener('click', () => selectDate(dayElement));
     }
 }
@@ -346,14 +355,44 @@ function generateAppointmentsForMonth(year, month) {
     const rng = mulberry32(hashString(monthKey));
     const doctors = ['Dr. Rana', 'Dr. Lynn', 'Dr. Ito'];
     const patients = [
-        'Avery Chen', 'Jordan Patel', 'Riley Brooks', 'Casey Morgan',
-        'Logan Reyes', 'Parker Singh', 'Rowan Diaz', 'Skyler Quinn',
-        'Emerson Hale', 'Noah Bailey', 'Blake Rivera', 'Harper Wells'
+        { name: 'Frank Harrison', risk: 78 },
+        { name: 'Maria Lopez', risk: 64 },
+        { name: 'Daniel Whitmore', risk: 52 },
+        { name: 'Evelyn Brooks', risk: 81 },
+        { name: "James O'Connell", risk: 69 },
+        { name: 'Aisha Rahman', risk: 47 },
+        { name: 'Robert Jenkins', risk: 73 },
+        { name: 'Linda Matthews', risk: 58 },
+        { name: 'Thomas Caldwell', risk: 66 },
+        { name: 'Priya Patel', risk: 41 },
+        { name: 'Harold Simmons', risk: 84 },
+        { name: 'Naomi Chen', risk: 36 },
+        { name: 'William Foster', risk: 71 },
+        { name: 'Rosa Martinez', risk: 62 },
+        { name: 'Michael Turner', risk: 55 },
+        { name: 'Fatima Hassan', risk: 49 },
+        { name: 'George Whitfield', risk: 77 },
+        { name: 'Emily Sanders', risk: 34 },
+        { name: 'Samuel Greene', risk: 68 },
+        { name: 'Nora Klein', risk: 59 },
+        { name: 'Paul Anderson', risk: 63 },
+        { name: 'Yvonne Dubois', risk: 72 },
+        { name: 'Kevin Morales', risk: 46 },
+        { name: 'Margaret Liu', risk: 80 },
+        { name: 'Jonathan Price', risk: 57 },
+        { name: 'Sofia Alvarez', risk: 39 },
+        { name: 'Dennis Porter', risk: 74 },
+        { name: 'Hannah Rosen', risk: 44 },
+        { name: 'Victor Nguyen', risk: 61 },
+        { name: 'Carol Bennett', risk: 83 }
     ];
     const schedule = {};
 
     for (let day = 1; day <= daysInMonth; day++) {
-        const count = 1 + Math.floor(rng() * 2);
+        let count = 1 + Math.floor(rng() * 2);
+        if (day <= 5) {
+            count = day === 1 ? 2 : 1;
+        }
         const dateKey = `${monthKey}-${String(day).padStart(2, '0')}`;
         schedule[dateKey] = [];
         for (let i = 0; i < count; i++) {
@@ -362,17 +401,10 @@ function generateAppointmentsForMonth(year, month) {
             const duration = 30 + Math.floor(rng() * 4) * 15;
             const startMinutes = startHour * 60 + startMinute;
             const endMinutes = startMinutes + duration;
-            const roll = rng();
-            let risk = Math.floor(rng() * 101);
-            if (roll < 0.08) {
-                risk = 80 + Math.floor(rng() * 21);
-            } else if (roll < 0.35) {
-                risk = 45 + Math.floor(rng() * 35);
-            } else {
-                risk = Math.floor(rng() * 46);
-            }
             const doctor = doctors[(day + i) % doctors.length];
-            const patient = patients[Math.floor(rng() * patients.length)];
+            const patientEntry = patients[Math.floor(rng() * patients.length)];
+            const patient = patientEntry.name;
+            const risk = patientEntry.risk;
 
             const initials = patient
                 .split(' ')
@@ -390,6 +422,47 @@ function generateAppointmentsForMonth(year, month) {
                 color: riskToColor(risk),
                 timeLabel: `${formatTime(startMinutes)}–${formatTime(endMinutes)}`
             });
+        }
+    }
+
+    if (month === 0) {
+        const nextMonthKey = `${year}-02`;
+        if (!appointmentsCache.has(nextMonthKey)) {
+            const nextMonthSchedule = {};
+            const nextRng = mulberry32(hashString(nextMonthKey));
+            for (let day = 1; day <= 10; day++) {
+                const dateKey = `${nextMonthKey}-${String(day).padStart(2, '0')}`;
+                nextMonthSchedule[dateKey] = [];
+                const count = 2 + Math.floor(nextRng() * 2);
+                for (let i = 0; i < count; i++) {
+                    const startHour = WEEK_START_HOUR + Math.floor(nextRng() * (WEEK_END_HOUR - WEEK_START_HOUR - 1));
+                    const startMinute = nextRng() > 0.5 ? 0 : 30;
+                    const duration = 30 + Math.floor(nextRng() * 4) * 15;
+                    const startMinutes = startHour * 60 + startMinute;
+                    const endMinutes = startMinutes + duration;
+                    const doctor = doctors[(day + i) % doctors.length];
+                    const patientEntry = patients[Math.floor(nextRng() * patients.length)];
+                    const patient = patientEntry.name;
+                    const risk = patientEntry.risk;
+                    const initials = patient
+                        .split(' ')
+                        .map(part => part[0])
+                        .join('')
+                        .toUpperCase();
+
+                    nextMonthSchedule[dateKey].push({
+                        doctor,
+                        patient,
+                        initials,
+                        risk,
+                        duration,
+                        startMinutes,
+                        color: riskToColor(risk),
+                        timeLabel: `${formatTime(startMinutes)}–${formatTime(endMinutes)}`
+                    });
+                }
+            }
+            appointmentsCache.set(nextMonthKey, nextMonthSchedule);
         }
     }
 
