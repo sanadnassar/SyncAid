@@ -58,13 +58,13 @@
                 <span class="text-sm font-medium tracking-wide">System Online: Clearwater Ridge</span>
             </div>
 
-            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9] drop-shadow-sm">
-                Predictive Care.<br>
+            <h1 class="text-6xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.9] drop-shadow-sm">
+                SyncAid Predictive Care.<br>
                 <span class="text-black/80">Before the Storm.</span>
             </h1>
             
             <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
-                Closing the information gap for 1,800 residents. We use AI to triage vulnerable patients before weather events isolate them.
+                Closing the information gap for 1,800 residents. <b>SyncAid</b> uses artificial intelligence to triage vulnerable patients before weather events isolate them.
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -81,11 +81,11 @@
             </div>
         </div>
 
-        <section id="about" class="relative z-10 px-6 py-24 bg-white/5 backdrop-blur-sm border-y border-white/10">
-    <div class="max-w-6xl mx-auto">
+        <section class="relative z-10 px-6 py-24 bg-white/5 backdrop-blur-sm border-y border-white/10">
+    <div id="about" class="max-w-6xl mx-auto">
         
         <div class="mb-20 text-center md:text-left">
-            <h2 class="text-indigo-200 text-sm font-bold tracking-[0.2em] uppercase mb-4">The Mission</h2>
+            <h2 class="text-indigo-200 text-sm font-bold tracking-[0.2em] uppercase mb-4 pt-4">Our Mission</h2>
             <p class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">
                 Redefining the <span class="text-black">Death Spiral of Waiting.</span>
             </p>
@@ -95,50 +95,60 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-32">
-            <div class="space-y-4">
-                <div class="text-3xl">📡</div>
+            <div class="space-y-4 border-4 border-white/20 rounded-3xl p-3
+                        hover:bg-[#ffc400] hover:text-white hover:-translate-y-2
+                        transition-all duration-300 ease-out
+                        hover:scale-105 active:scale-95 pt-4">
+                
                 <h3 class="text-xl font-bold text-black">Predictive Triage</h3>
                 <p class="text-white/70 text-sm leading-relaxed">
                     Our ML model processes Environment Canada weather feeds and road closure reports in real-time. If a storm is brewing, we don't wait for the no-show; we predict it.
                 </p>
             </div>
 
-            <div class="space-y-4">
-                <div class="text-3xl">🔄</div>
+            <div class="space-y-4 border-4 border-white/20 rounded-3xl p-3
+                        hover:bg-[#ffc400] hover:text-white hover:-translate-y-2
+                        transition-all duration-300 ease-out
+                        hover:scale-105 active:scale-95 pt-4">
                 <h3 class="text-xl font-bold text-black">Dynamic Swapping</h3>
                 <p class="text-white/70 text-sm leading-relaxed">
                     When the AI detects an 85% risk of a missed slot, it "slingshots" urgent standby patients into the gap, ensuring the clinic operates at 100% capacity even in a crisis.
                 </p>
             </div>
 
-            <div class="space-y-4">
-                <div class="text-3xl">🚐</div>
+            <div class="space-y-4 border-4 border-white/20 rounded-3xl p-3
+                        hover:bg-[#ffc400] hover:text-white hover:-translate-y-2
+                        transition-all duration-300 ease-out
+                        hover:scale-105 active:scale-95 pt-4">
                 <h3 class="text-xl font-bold text-black">Emergency Shuttle</h3>
                 <p class="text-white/70 text-sm leading-relaxed">
-                    Patients with a Risk Score >90 aren't left to chance. We auto-allocate budget for community transport to relocate high-fragility residents before weather isolation occurs.
+                    Patients with a Risk Score greater than 90 aren't left to chance. We auto-allocate budget for community transport to relocate high-fragility residents before weather isolation occurs.
                 </p>
             </div>
         </div>
 
-        <div class="bg-black/40 border border-white/20 rounded-3xl p-8 md:p-12">
+        <div id="stats-section" class="bg-black/40 border border-white/20 rounded-3xl p-8 md:p-12 opacity-0 transition-opacity duration-1000">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div>
-                    <span class="block text-4xl font-black text-white mb-2">$15k</span>
+                    <span class="block text-4xl font-black text-white mb-2">$<span class="stat-number" data-target="15">0</span>k</span>
                     <span class="text-xs uppercase tracking-widest text-white/50">Saved per airlift prevented</span>
                 </div>
                 <div class="border-y md:border-y-0 md:border-x border-white/10 py-8 md:py-0">
-                    <span class="block text-4xl font-black text-white mb-2">1,800</span>
+                    <span class="block text-4xl font-black text-white mb-2"><span class="stat-number" data-target="1800">0</span></span>
                     <span class="text-xs uppercase tracking-widest text-white/50">Residents protected</span>
                 </div>
                 <div>
-                    <span class="block text-4xl font-black text-white mb-2">0%</span>
+                    <span class="block text-4xl font-black text-white mb-2"><span class="stat-number" data-target="4.71">0</span>%</span>
                     <span class="text-xs uppercase tracking-widest text-white/50">Idle clinic time</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
-    </main>
+</main>
+</div>
+<div class="bottom-0 text-center text-white">
+    <p>Copyright © 2026 SyncAid Predictive Care. All rights reserved.</p>
 </div>
 
 <script>
@@ -165,6 +175,47 @@
     requestAnimationFrame(animate);
   }
   animate();
+
+  const statsSection = document.getElementById('stats-section');
+const stats = document.querySelectorAll('.stat-number');
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            statsSection.classList.add('opacity-100');
+            
+            stats.forEach((stat, index) => {
+                setTimeout(() => {
+                    animateNumber(stat);
+                }, index * 1500);
+            });
+            
+            observer.unobserve(statsSection);
+        }
+    });
+}, { threshold: 0.5 });
+
+observer.observe(statsSection);
+
+function animateNumber(element) {
+    const target = parseFloat(element.getAttribute('data-target'));
+    const duration = 1500;
+    const start = 0;
+    let startTime = null;
+
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const current = progress * (target - start) + start;
+        
+        element.innerHTML = target % 1 === 0 ? Math.floor(current) : current.toFixed(2);
+        
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    }
+    window.requestAnimationFrame(step);
+}
 </script>
 </body>
 </html>
