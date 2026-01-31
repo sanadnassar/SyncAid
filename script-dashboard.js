@@ -7,6 +7,8 @@ const timeColumn = document.getElementById('timeColumn');
 const prevMonthBtn = document.getElementById('prevMonth');
 const nextMonthBtn = document.getElementById('nextMonth');
 const todayDateDisplay = document.getElementById('todayDate');
+const upcomingCountDisplay = document.getElementById('upcomingCount');
+const monthCountDisplay = document.getElementById('monthCount');
 const viewButtons = document.querySelectorAll('.view-btn');
 const calendarContainer = document.querySelector('.calendar');
 const calendarBody = document.querySelector('.calendar-body');
@@ -31,6 +33,7 @@ function initDashboard() {
     renderCalendar();
     updateTodayDate();
     attachEventListeners();
+    updateStats();
     animateStats(); // Add animation to numbers
     initIcons();
     initAOS();
@@ -59,6 +62,7 @@ function renderCalendar() {
 
         // Fade back in
         calendarBody.classList.remove('fade-out');
+        updateStats();
     }, 200);
 }
 
@@ -189,6 +193,40 @@ function animateStats() {
         
         requestAnimationFrame(update);
     });
+}
+
+function updateStats() {
+    const viewYear = currentDate.getFullYear();
+    const viewMonth = currentDate.getMonth();
+    const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+
+    if (!appointmentsCache.has(monthKey)) {
+        appointmentsCache.set(monthKey, generateAppointmentsForMonth(viewYear, viewMonth));
+    }
+    const monthAppointments = appointmentsCache.get(monthKey);
+
+    let monthTotal = 0;
+    let upcomingTotal = 0;
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === viewYear && today.getMonth() === viewMonth;
+
+    Object.keys(monthAppointments).forEach(dateKey => {
+        const dayAppointments = monthAppointments[dateKey] || [];
+        monthTotal += dayAppointments.length;
+
+        if (!isCurrentMonth) {
+            upcomingTotal += dayAppointments.length;
+            return;
+        }
+
+        const dayNumber = parseInt(dateKey.slice(-2), 10);
+        if (dayNumber >= today.getDate()) {
+            upcomingTotal += dayAppointments.length;
+        }
+    });
+
+    if (monthCountDisplay) monthCountDisplay.textContent = `${monthTotal}`;
+    if (upcomingCountDisplay) upcomingCountDisplay.textContent = `${upcomingTotal}`;
 }
 
 // Attach event listeners
