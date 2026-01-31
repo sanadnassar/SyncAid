@@ -13,6 +13,7 @@
     --light-sky: #C6E9F7;
     --muted-teal-gray: #BCD9DD;
     --deep-forest-teal: #405751;
+    --radius: 16px;
     
     /* Animation Variables */
     --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -20,7 +21,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif; 
+    font-family: 'Avenir Next', 'Manrope', 'Segoe UI', sans-serif; 
     background: #b4d8da; /* Fallback */
     background: linear-gradient(135deg, #b4d8da 0%, #d4eaea 100%);
     min-height: 100vh;
@@ -81,7 +82,7 @@ header {
 .brand-logo {
     width: 64px;
     height: 64px;
-    border-radius: 14px;
+    border-radius: var(--radius);
     object-fit: cover;
     background-color: #E9EFF6;
     box-shadow: 0 8px 18px rgba(64, 87, 81, 0.12);
@@ -103,7 +104,7 @@ nav a {
     color: #405751;
     font-weight: 500;
     padding: 10px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     font-size: 17px;
     transition: all 0.3s ease;
     position: relative;
@@ -126,6 +127,17 @@ nav a:active {
     transform: scale(0.95);
 }
 
+.lucide {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.6;
+}
+
+.nav-btn .lucide {
+    width: 20px;
+    height: 20px;
+}
+
 /* Main Content */
 main {
     flex: 1;
@@ -142,7 +154,7 @@ main {
 .calendar-section {
     background: rgba(233, 239, 246, 0.9);
     padding: 28px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     box-shadow:
         0 18px 40px rgba(64, 87, 81, 0.1),
         0 0 0 1px rgba(188, 217, 221, 0.4) inset;
@@ -160,7 +172,7 @@ main {
 .calendar-wrapper {
     background: #ECF4F3;
     padding: 22px;
-    border-radius: 14px;
+    border-radius: var(--radius);
     transition: height 0.3s ease;
 }
 
@@ -188,7 +200,7 @@ main {
     display: inline-flex;
     align-items: center;
     background: #E9EFF6;
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 4px;
     border: 1px solid rgba(188, 217, 221, 0.7);
 }
@@ -198,7 +210,7 @@ main {
     color: #405751;
     border: none;
     padding: 12px 18px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -216,7 +228,7 @@ main {
     color: #405751;
     border: none;
     padding: 14px 22px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -256,11 +268,15 @@ main {
     color: #405751;
     border: none;
     padding: 12px 18px;
-    border-radius: 14px;
+    border-radius: var(--radius);
     cursor: pointer;
     font-size: 20px;
     box-shadow: 0 6px 16px rgba(64, 87, 81, 0.12);
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
 }
 
 .nav-btn:hover {
@@ -275,7 +291,7 @@ main {
 /* Calendar Grid */
 .calendar {
     background: #E9EFF6;
-    border-radius: 14px;
+    border-radius: var(--radius);
     padding: 14px;
     --calendar-grid-height: 990px;
     --week-slot-height: 46px;
@@ -364,11 +380,13 @@ main {
     align-items: flex-start;
     justify-content: flex-start;
     border: 1px solid #BCD9DD;
-    border-radius: 14px;
+    border-radius: var(--radius);
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
     padding: 8px;
+    gap: 6px;
+    flex-direction: column;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     background-color: #F3F5F9;
     width: 100%;
@@ -382,12 +400,110 @@ main {
     height: 100%;
 }
 
+.appointments {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.calendar.mode-week .appointments {
+    position: absolute;
+    inset: 28px 0 8px 0;
+    gap: 0;
+    overflow: visible;
+}
+
+.appointment-block {
+    border: 1px solid rgba(64, 87, 81, 0.12);
+    border-radius: var(--radius);
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Avenir Next', 'Manrope', 'Segoe UI', sans-serif;
+    text-align: left;
+    color: #1f2f2b;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    position: relative;
+    background: #BCD9DD;
+}
+
+.appointment-block--week {
+    white-space: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.appointment-block--week .appt-time {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.appointment-block--week .appt-patient {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.appointment-block::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: var(--risk-color, #405751);
+}
+
+.calendar.mode-week .appointment-block {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    border-radius: var(--radius);
+    width: calc(100% - 16px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 6px;
+}
+
+.calendar.mode-week .appointment-block::after {
+    top: 0;
+    bottom: 0;
+    right: auto;
+    width: 4px;
+    height: auto;
+}
+
+.appointment-block:hover {
+    transform: translateY(-1px);
+}
+
+.appointment-block.is-selected {
+    box-shadow: 0 6px 16px rgba(64, 87, 81, 0.18);
+    border-color: rgba(64, 87, 81, 0.25);
+}
+
 .day-number {
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
     z-index: 2;
     transition: color 0.2s ease;
+}
+
+.calendar.mode-week .day-number {
+    position: absolute;
+    top: 8px;
+    left: 8px;
 }
 
 .calendar-day:hover {
@@ -456,8 +572,23 @@ main {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     gap: 12px;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    color: #405751;
+}
+
+.stat-header h3 {
+    font-size: 12px;
+    opacity: 0.75;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .stat-card {
@@ -465,7 +596,7 @@ main {
     backdrop-filter: blur(5px);
     color: #405751;
     padding: 16px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     text-align: left;
     box-shadow: 0 4px 6px rgba(64, 87, 81, 0.05);
     border: 1px solid rgba(188, 217, 221, 0.7);
@@ -478,14 +609,6 @@ main {
     background: rgba(233, 239, 246, 0.9);
     box-shadow: 0 10px 20px rgba(64, 87, 81, 0.1);
     border-color: #C6E9F7;
-}
-
-.stat-card h3 {
-    font-size: 12px;
-    opacity: 0.7;
-    margin-bottom: 8px;
-    font-weight: 600;
-    text-transform: uppercase;
 }
 
 .stat-number {
@@ -504,6 +627,20 @@ main {
     font-size: 11px;
     opacity: 0.7;
     font-weight: 500;
+}
+
+.stat-card--chart {
+    padding: 14px 14px 12px;
+}
+
+.chart-wrap {
+    height: 120px;
+    margin: 4px 0 6px;
+}
+
+.chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* Footer */
