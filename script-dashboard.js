@@ -9,6 +9,7 @@ const nextMonthBtn = document.getElementById('nextMonth');
 const todayDateDisplay = document.getElementById('todayDate');
 const viewButtons = document.querySelectorAll('.view-btn');
 const calendarContainer = document.querySelector('.calendar');
+const calendarBody = document.querySelector('.calendar-body');
 
 let currentView = 'month';
 
@@ -23,29 +24,43 @@ function initDashboard() {
     renderCalendar();
     updateTodayDate();
     attachEventListeners();
+    animateStats(); // Add animation to numbers
 }
 
 // Render calendar
 function renderCalendar() {
-    calendarGrid.innerHTML = '';
-    timeColumn.innerHTML = '';
-    calendarGrid.classList.remove('view-week');
-    calendarContainer.classList.remove('mode-week');
+    // Add fade out effect
+    calendarBody.classList.add('fade-out');
 
-    if (currentView === 'week') {
-        calendarGrid.classList.add('view-week');
-        calendarContainer.classList.add('mode-week');
-        renderWeekView();
-        return;
-    }
+    // Wait for fade out to finish (200ms matches CSS transition)
+    setTimeout(() => {
+        calendarGrid.innerHTML = '';
+        timeColumn.innerHTML = '';
+        calendarGrid.classList.remove('view-week');
+        calendarContainer.classList.remove('mode-week');
 
-    renderMonthView();
+        if (currentView === 'week') {
+            calendarGrid.classList.add('view-week');
+            calendarContainer.classList.add('mode-week');
+            renderWeekView();
+        } else {
+            renderMonthView();
+        }
+
+        // Fade back in
+        calendarBody.classList.remove('fade-out');
+    }, 200);
 }
 
 // Create day element
 function createDayElement(day, className) {
     const dayElement = document.createElement('div');
     dayElement.className = `calendar-day ${className}`;
+    
+    // Staggered animation delay based on day number for subtle flow
+    // (Optional: if it causes performance issues, remove the style attribute)
+    dayElement.style.animationDelay = `${day * 0.01}s`;
+    
     dayElement.innerHTML = `<span class="day-number">${day}</span>`;
     calendarGrid.appendChild(dayElement);
     return dayElement;
@@ -71,7 +86,50 @@ function updateTodayDate() {
         month: 'short',
         day: 'numeric'
     });
+    // We will animate this text in animateStats if it was a number, 
+    // but since it's text, we set it directly.
     todayDateDisplay.textContent = dateString;
+}
+
+// Animate Stats Numbers
+function animateStats() {
+    const stats = document.querySelectorAll('.stat-number');
+    
+    stats.forEach(stat => {
+        // If it's the date (text), skip number animation
+        if(stat.id === 'todayDate') return;
+
+        const target = parseInt(stat.innerText) || 0; // Use 0 if text is empty
+        // For demo purposes, let's pretend we have data coming in
+        // If the HTML says "0", let's animate to a mock number like 5 or 12 
+        // just to show the effect, OR keep it 0 if you want strict logic.
+        // Let's assume the HTML "0" is the starting point.
+        
+        // Example: If you had real data, you'd pass the target number here.
+        // Since the HTML is static "0", let's animate 0 to 0 (no visible change)
+        // OR animate from 0 to the value in HTML.
+        
+        let start = 0;
+        const duration = 1500;
+        const startTime = performance.now();
+
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Ease out quart formula
+            const ease = 1 - Math.pow(1 - progress, 4);
+            
+            const current = Math.floor(start + (target - start) * ease);
+            stat.innerText = current;
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            }
+        }
+        
+        requestAnimationFrame(update);
+    });
 }
 
 // Attach event listeners
@@ -97,7 +155,10 @@ function attachEventListeners() {
     viewButtons.forEach(button => {
         button.addEventListener('click', () => {
             const view = button.getAttribute('data-view');
-            setView(view);
+            // Only update if view actually changes
+            if (currentView !== view) {
+                setView(view);
+            }
         });
     });
 }
