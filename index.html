@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncAid | Predictive Care</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+    
+<body class="bg-[#61b6d4]"> <div class="relative min-h-screen w-full bg-[#61b6d4] overflow-x-hidden text-white selection:bg-black selection:text-[#61b6d4]">
+  
+    <div id="cursor-glow" 
+        class="pointer-events-none fixed w-[600px] h-[600px] opacity-40 transition-transform duration-300 ease-out z-0 mix-blend-overlay"
+        style="background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);">
+    </div>
+
+    <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.2)_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none z-0"></div>
+
+    <nav class="relative z-50 pt-8 pb-16 mb-16">
+        <ul class="flex items-center gap-2 bg-black/80 backdrop-blur-xl text-white/90 p-2 rounded-full w-max mx-auto border border-white/10 shadow-2xl ring-1 ring-white/5">
+        <li class="px-6 py-2 cursor-pointer transition-all duration-300 rounded-full hover:bg-white/20 font-medium text-sm">Home</li>
+        <li class="px-6 py-2 cursor-pointer transition-all duration-300 rounded-full hover:bg-white/20 font-medium text-sm">About</li>
+        <li class="px-6 py-2 cursor-pointer transition-all duration-300 rounded-full hover:bg-white/20 font-medium text-sm">Features</li>
+        <li class="px-6 py-2 cursor-pointer transition-all duration-300 rounded-full bg-white text-black hover:bg-white/90 font-bold text-sm shadow-lg">Appointments</li>
+        </ul>
+    </nav>
+
+    <main class="relative z-10 px-6 pb-20">
+        
+        <div class="max-w-5xl mx-auto text-center mt-12 mb-24">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8 animate-fade-in-up">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span class="text-sm font-medium tracking-wide">System Online: Clearwater Ridge</span>
+            </div>
+
+            <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.9] drop-shadow-sm">
+                Predictive Care.<br>
+                <span class="text-black/80">Before the Storm.</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
+                Closing the information gap for 1,800 residents. We use AI to triage vulnerable patients before weather events isolate them.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="dashboard.html" class="group relative px-8 py-4 bg-black text-white rounded-full font-bold text-lg overflow-hidden transition-transform hover:scale-105 hover:shadow-2xl">
+                    <span class="relative z-10 flex items-center gap-2">
+                        Launch Dashboard
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                    <div class="absolute inset-0 bg-gray-800 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                </a>
+                <a href="#video" class="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full font-bold text-lg hover:bg-white/20 transition-all">
+                    Watch Demo
+                </a>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="p-8 rounded-3xl bg-black/5 backdrop-blur-md border border-white/10 hover:bg-black/10 transition-all duration-300 group">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 text-2xl group-hover:scale-110 transition-transform">⚠️</div>
+                <h3 class="text-2xl font-bold text-black/80 mb-3">The Gap</h3>
+                <p class="text-white/80 leading-relaxed">Manual phone trees fail during storms. Nurses need a centralized, digital view of patient risk.</p>
+            </div>
+
+            <div class="p-8 rounded-3xl bg-black/5 backdrop-blur-md border border-white/10 hover:bg-black/10 transition-all duration-300 group">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 text-2xl group-hover:scale-110 transition-transform">🧠</div>
+                <h3 class="text-2xl font-bold text-black/80 mb-3">The Logic</h3>
+                <p class="text-white/80 leading-relaxed">We combine weather APIs with medical records to assign a live "Resilience Score" to every resident.</p>
+            </div>
+
+            <div class="p-8 rounded-3xl bg-black/5 backdrop-blur-md border border-white/10 hover:bg-black/10 transition-all duration-300 group">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 text-2xl group-hover:scale-110 transition-transform">💰</div>
+                <h3 class="text-2xl font-bold text-black/80 mb-3">The Savings</h3>
+                <p class="text-white/80 leading-relaxed">Preventing just one emergency airlift saves the community over $15,000 per event.</p>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+  const glow = document.getElementById('cursor-glow');
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let ballX = 0;
+  let ballY = 0;
+  // Increased speed slightly for a snappier feel
+  const speed = 0.15; 
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function animate() {
+    ballX += (mouseX - ballX) * speed;
+    ballY += (mouseY - ballY) * speed;
+
+    glow.style.left = `${ballX}px`;
+    glow.style.top = `${ballY}px`;
+    glow.style.transform = `translate(-50%, -50%)`;
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+</body>
+</html>
