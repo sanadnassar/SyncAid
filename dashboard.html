@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SyncAid</title>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
     <link rel="stylesheet" href="style-dashboard.css">
 </head>
 <body>
@@ -23,14 +24,18 @@
 
         <main>
             <section class="dashboard-content">
-                <div class="calendar-section">
+                <div class="calendar-section" data-aos="fade-up" data-aos-duration="900">
                     <h2>Calendar</h2>
                     <div class="calendar-wrapper">
                         <div class="calendar-header">
                             <div class="calendar-controls">
-                                <button id="prevMonth" class="nav-btn" aria-label="Previous month">&lt;</button>
+                                <button id="prevMonth" class="nav-btn" aria-label="Previous month">
+                                    <i data-lucide="chevron-left"></i>
+                                </button>
                                 <h3 id="monthYear"></h3>
-                                <button id="nextMonth" class="nav-btn" aria-label="Next month">&gt;</button>
+                                <button id="nextMonth" class="nav-btn" aria-label="Next month">
+                                    <i data-lucide="chevron-right"></i>
+                                </button>
                             </div>
                             <div class="calendar-actions">
                                 <div class="view-toggle" role="group" aria-label="Calendar view">
@@ -58,23 +63,42 @@
                     </div>
                 </div>
 
-                <div class="stats-section">
+                <div class="stats-section" data-aos="fade-up" data-aos-duration="900" data-aos-delay="120">
                     <h2>Quick Stats</h2>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <h3>Upcoming</h3>
+                            <div class="stat-header">
+                                <i data-lucide="calendar-check"></i>
+                                <h3>Upcoming</h3>
+                            </div>
                             <p class="stat-number">0</p>
                             <p class="stat-label">Appointments</p>
                         </div>
                         <div class="stat-card">
-                            <h3>This Month</h3>
+                            <div class="stat-header">
+                                <i data-lucide="activity"></i>
+                                <h3>This Month</h3>
+                            </div>
                             <p class="stat-number">0</p>
                             <p class="stat-label">Events</p>
                         </div>
                         <div class="stat-card">
-                            <h3>Today</h3>
+                            <div class="stat-header">
+                                <i data-lucide="clock-4"></i>
+                                <h3>Today</h3>
+                            </div>
                             <p class="stat-number" id="todayDate"></p>
                             <p class="stat-label">Current Date</p>
+                        </div>
+                        <div class="stat-card stat-card--chart">
+                            <div class="stat-header">
+                                <i data-lucide="line-chart"></i>
+                                <h3>Risk Mix</h3>
+                            </div>
+                            <div class="chart-wrap">
+                                <canvas id="riskChart" height="120"></canvas>
+                            </div>
+                            <p class="stat-label">Weekly patient risk profile</p>
                         </div>
                     </div>
                 </div>
@@ -86,6 +110,9 @@
         </footer>
     </div>
 
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="script-dashboard.js"></script>
 </body>
 </html>
