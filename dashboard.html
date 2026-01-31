@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SyncAid</title>
+    <link rel="stylesheet" href="style-dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="brand">
+                    <img src="SyncAid.png" alt="SyncAid logo" class="brand-logo">
+                </div>
+                <nav>
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html" class="active">Dashboard</a>
+                    <a href="appointments.html">Appointments</a>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <section class="dashboard-content">
+                <div class="calendar-section">
+                    <h2>Calendar</h2>
+                    <div class="calendar-wrapper">
+                        <div class="calendar-header">
+                            <div class="calendar-controls">
+                                <button id="prevMonth" class="nav-btn" aria-label="Previous month">&lt;</button>
+                                <h3 id="monthYear"></h3>
+                                <button id="nextMonth" class="nav-btn" aria-label="Next month">&gt;</button>
+                            </div>
+                            <div class="calendar-actions">
+                                <div class="view-toggle" role="group" aria-label="Calendar view">
+                                    <button class="view-btn is-active" type="button" data-view="month">Month</button>
+                                    <button class="view-btn" type="button" data-view="week">Week</button>
+                                </div>
+                                <button class="primary-btn primary-btn--alert" type="button">New Appointment</button>
+                            </div>
+                        </div>
+                        <div class="calendar">
+                            <div class="weekdays">
+                                <div class="weekday">Sun</div>
+                                <div class="weekday">Mon</div>
+                                <div class="weekday">Tue</div>
+                                <div class="weekday">Wed</div>
+                                <div class="weekday">Thu</div>
+                                <div class="weekday">Fri</div>
+                                <div class="weekday">Sat</div>
+                            </div>
+                            <div class="calendar-body">
+                                <div id="timeColumn" class="time-column" aria-hidden="true"></div>
+                                <div id="calendarGrid" class="calendar-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h2>Quick Stats</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Upcoming</h3>
+                            <p class="stat-number">0</p>
+                            <p class="stat-label">Appointments</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>This Month</h3>
+                            <p class="stat-number">0</p>
+                            <p class="stat-label">Events</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Today</h3>
+                            <p class="stat-number" id="todayDate"></p>
+                            <p class="stat-label">Current Date</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 SyncAid. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="script-dashboard.js"></script>
+</body>
+</html>
