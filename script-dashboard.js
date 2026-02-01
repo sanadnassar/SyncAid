@@ -25,37 +25,39 @@ const WEEK_VIEW_HEIGHT = 990;
 const WEEK_VIEW_PADDING_TOP = 28;
 const WEEK_VIEW_PADDING_BOTTOM = 8;
 const appointmentsCache = new Map();
+let listenersAttached = false;
 const patientDirectory = [
-    { name: 'Frank Harrison', risk: 78 },
-    { name: 'Maria Lopez', risk: 64 },
-    { name: 'Daniel Whitmore', risk: 52 },
-    { name: 'Evelyn Brooks', risk: 81 },
-    { name: "James O'Connell", risk: 69 },
-    { name: 'Aisha Rahman', risk: 47 },
-    { name: 'Robert Jenkins', risk: 73 },
-    { name: 'Linda Matthews', risk: 58 },
-    { name: 'Thomas Caldwell', risk: 66 },
-    { name: 'Priya Patel', risk: 41 },
-    { name: 'Harold Simmons', risk: 84 },
-    { name: 'Naomi Chen', risk: 36 },
-    { name: 'William Foster', risk: 71 },
-    { name: 'Rosa Martinez', risk: 62 },
-    { name: 'Michael Turner', risk: 55 },
-    { name: 'Fatima Hassan', risk: 49 },
-    { name: 'George Whitfield', risk: 77 },
-    { name: 'Emily Sanders', risk: 34 },
-    { name: 'Samuel Greene', risk: 68 },
-    { name: 'Nora Klein', risk: 59 },
-    { name: 'Paul Anderson', risk: 63 },
-    { name: 'Yvonne Dubois', risk: 72 },
-    { name: 'Kevin Morales', risk: 46 },
-    { name: 'Margaret Liu', risk: 80 },
-    { name: 'Jonathan Price', risk: 57 },
-    { name: 'Sofia Alvarez', risk: 39 },
-    { name: 'Dennis Porter', risk: 74 },
-    { name: 'Hannah Rosen', risk: 44 },
-    { name: 'Victor Nguyen', risk: 61 },
-    { name: 'Carol Bennett', risk: 83 }
+{ name: 'Frank Harrison', risk: 96 },
+{ name: 'Maria Lopez', risk: 28 },
+{ name: 'Daniel Whitmore', risk: 22 },
+{ name: 'Evelyn Brooks', risk: 60 },
+{ name: "James O'Connell", risk: 48 },
+{ name: 'Aisha Rahman', risk: 18 },
+{ name: 'Robert Jenkins', risk: 70 },
+{ name: 'Linda Matthews', risk: 35 },
+{ name: 'Thomas Caldwell', risk: 52 },
+{ name: 'Priya Patel', risk: 16 },
+{ name: 'Harold Simmons', risk: 88 },
+{ name: 'Naomi Chen', risk: 14 },
+{ name: 'William Foster', risk: 57 },
+{ name: 'Rosa Martinez', risk: 41 },
+{ name: 'Michael Turner', risk: 33 },
+{ name: 'Fatima Hassan', risk: 21 },
+{ name: 'George Whitfield', risk: 79 },
+{ name: 'Emily Sanders', risk: 12 },
+{ name: 'Samuel Greene', risk: 55 },
+{ name: 'Nora Klein', risk: 38 },
+{ name: 'Paul Anderson', risk: 44 },
+{ name: 'Yvonne Dubois', risk: 73 },
+{ name: 'Kevin Morales', risk: 19 },
+{ name: 'Margaret Liu', risk: 75 },
+{ name: 'Jonathan Price', risk: 36 },
+{ name: 'Sofia Alvarez', risk: 15 },
+{ name: 'Dennis Porter', risk: 77 },
+{ name: 'Hannah Rosen', risk: 17 },
+{ name: 'Victor Nguyen', risk: 42 },
+{ name: 'Carol Bennett', risk: 92 }
+
 ];
 
 // Month names
@@ -68,7 +70,10 @@ const monthNames = [
 function initDashboard() {
     renderCalendar();
     updateTodayDate();
-    attachEventListeners();
+    if (!listenersAttached) {
+        attachEventListeners();
+        listenersAttached = true;
+    }
     updateStats();
     animateStats(); // Add animation to numbers
     initIcons();
@@ -269,39 +274,41 @@ function updateStats() {
 
 // Attach event listeners
 function attachEventListeners() {
-    prevMonthBtn.addEventListener('click', () => {
+    prevMonthBtn.onclick = () => {
         if (currentView === 'month') {
+            currentDate.setDate(1);
             currentDate.setMonth(currentDate.getMonth() - 1);
         } else if (currentView === 'week') {
             currentDate.setDate(currentDate.getDate() - 7);
         }
         renderCalendar();
-    });
+    };
 
-    nextMonthBtn.addEventListener('click', () => {
+    nextMonthBtn.onclick = () => {
         if (currentView === 'month') {
+            currentDate.setDate(1);
             currentDate.setMonth(currentDate.getMonth() + 1);
         } else if (currentView === 'week') {
             currentDate.setDate(currentDate.getDate() + 7);
         }
         renderCalendar();
-    });
+    };
 
     viewButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.onclick = () => {
             const view = button.getAttribute('data-view');
             // Only update if view actually changes
             if (currentView !== view) {
                 setView(view);
             }
-        });
+        };
     });
 
     if (newApptBtn && patientMenu) {
-        newApptBtn.addEventListener('click', () => {
+        newApptBtn.onclick = () => {
             const isOpen = patientMenu.classList.toggle('is-open');
             newApptBtn.setAttribute('aria-expanded', String(isOpen));
-        });
+        };
 
         document.addEventListener('click', (event) => {
             if (!patientMenu.contains(event.target) && !newApptBtn.contains(event.target)) {
@@ -455,19 +462,16 @@ function getDateKey(date) {
     return `${year}-${month}-${day}`;
 }
 
-function generateAppointmentsForMonth(year, month) {
+function generateAppointmentsForMonth(year, month, forceRandom = false) {
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const rng = mulberry32(hashString(monthKey));
+    const rng = forceRandom ? Math.random : mulberry32(hashString(monthKey));
     const doctors = ['Dr. Rana', 'Dr. Lynn', 'Dr. Ito'];
     const patients = patientDirectory;
     const schedule = {};
 
     for (let day = 1; day <= daysInMonth; day++) {
-        let count = 1 + Math.floor(rng() * 2);
-        if (day <= 5) {
-            count = day === 1 ? 2 : 1;
-        }
+        const count = 1 + Math.floor(rng() * 2);
         const dateKey = `${monthKey}-${String(day).padStart(2, '0')}`;
         schedule[dateKey] = [];
         for (let i = 0; i < count; i++) {
@@ -497,6 +501,94 @@ function generateAppointmentsForMonth(year, month) {
                 color: riskToColor(risk),
                 timeLabel: `${formatTime(startMinutes)}–${formatTime(endMinutes)}`
             });
+        }
+    }
+
+    if (monthKey === '2026-02') {
+        const hardcoded = {
+            '2026-02-01': [
+                { patient: 'Maria Lopez', risk: 28, start: 9 * 60, duration: 45 },
+                { patient: 'Harold Simmons', risk: 88, start: 11 * 60, duration: 60 },
+                { patient: 'Priya Patel', risk: 16, start: 14 * 60 + 30, duration: 30 }
+            ],
+            '2026-02-02': [
+                { patient: 'Emily Sanders', risk: 12, start: 8 * 60 + 30, duration: 45 }
+            ],
+            '2026-02-03': [
+                { patient: 'Daniel Whitmore', risk: 22, start: 9 * 60, duration: 30 },
+                { patient: 'Evelyn Brooks', risk: 60, start: 12 * 60, duration: 45 },
+                { patient: 'Sofia Alvarez', risk: 15, start: 16 * 60, duration: 30 }
+            ],
+            '2026-02-04': [
+                { patient: 'Yvonne Dubois', risk: 73, start: 8 * 60, duration: 45 },
+                { patient: 'Rosa Martinez', risk: 41, start: 11 * 60 + 30, duration: 30 },
+                { patient: 'Carol Bennett', risk: 92, start: 14 * 60, duration: 60 }
+            ],
+            '2026-02-05': [
+                { patient: 'Michael Turner', risk: 33, start: 9 * 60 + 30, duration: 30 },
+                { patient: 'Thomas Caldwell', risk: 52, start: 13 * 60, duration: 45 },
+                { patient: 'Dennis Porter', risk: 77, start: 15 * 60 + 30, duration: 45 }
+            ]
+            ,
+            '2026-02-06': [
+                { patient: 'Yvonne Dubois', risk: 73, start: 11 * 60, duration: 60 }
+            ]
+        };
+
+        Object.keys(hardcoded).forEach(dateKey => {
+            schedule[dateKey] = hardcoded[dateKey].map((entry, index) => {
+                const endMinutes = entry.start + entry.duration;
+                const initials = entry.patient
+                    .split(' ')
+                    .map(part => part[0])
+                    .join('')
+                    .toUpperCase();
+                return {
+                    doctor: doctors[index % doctors.length],
+                    patient: entry.patient,
+                    initials,
+                    risk: entry.risk,
+                    duration: entry.duration,
+                    startMinutes: entry.start,
+                    color: riskToColor(entry.risk),
+                    timeLabel: `${formatTime(entry.start)}–${formatTime(endMinutes)}`
+                };
+            });
+        });
+
+        for (let day = 11; day <= 28; day++) {
+            const dateKey = `2026-02-${String(day).padStart(2, '0')}`;
+            if (schedule[dateKey] && schedule[dateKey].length > 0) {
+                continue;
+            }
+            schedule[dateKey] = [];
+            const count = 1 + Math.floor(rng() * 2);
+            for (let i = 0; i < count; i++) {
+                const startHour = WEEK_START_HOUR + Math.floor(rng() * (WEEK_END_HOUR - WEEK_START_HOUR - 1));
+                const startMinute = rng() > 0.5 ? 0 : 30;
+                const duration = 30 + Math.floor(rng() * 4) * 15;
+                const startMinutes = startHour * 60 + startMinute;
+                const endMinutes = startMinutes + duration;
+                const doctor = doctors[(day + i) % doctors.length];
+                const patientEntry = patients[Math.floor(rng() * patients.length)];
+                const patient = patientEntry.name;
+                const risk = patientEntry.risk;
+                const initials = patient
+                    .split(' ')
+                    .map(part => part[0])
+                    .join('')
+                    .toUpperCase();
+                schedule[dateKey].push({
+                    doctor,
+                    patient,
+                    initials,
+                    risk,
+                    duration,
+                    startMinutes,
+                    color: riskToColor(risk),
+                    timeLabel: `${formatTime(startMinutes)}–${formatTime(endMinutes)}`
+                });
+            }
         }
     }
 
@@ -541,6 +633,35 @@ function generateAppointmentsForMonth(year, month) {
         }
     }
 
+    if (monthKey === '2026-02') {
+        const dateKey = '2026-02-02';
+        const target = schedule[dateKey] || [];
+        const extraEntries = [
+            { patient: 'Harold Simmons', risk: 88, start: 13 * 60, duration: 45 },
+            { patient: 'Margaret Liu', risk: 75, start: 14 * 60 + 30, duration: 45 },
+            { patient: 'Dennis Porter', risk: 77, start: 16 * 60, duration: 45 }
+        ];
+        extraEntries.forEach((entry, index) => {
+            const endMinutes = entry.start + entry.duration;
+            const initials = entry.patient
+                .split(' ')
+                .map(part => part[0])
+                .join('')
+                .toUpperCase();
+            target.push({
+                doctor: doctors[(2 + index) % doctors.length],
+                patient: entry.patient,
+                initials,
+                risk: entry.risk,
+                duration: entry.duration,
+                startMinutes: entry.start,
+                color: riskToColor(entry.risk),
+                timeLabel: `${formatTime(entry.start)}–${formatTime(endMinutes)}`
+            });
+        });
+        schedule[dateKey] = target;
+    }
+
     return schedule;
 }
 
@@ -554,11 +675,47 @@ function initPatientMenu() {
         item.setAttribute('role', 'option');
         item.style.setProperty('--risk-color', riskToColor(patient.risk));
         item.addEventListener('click', () => {
+            if (patient.name === 'Frank Harrison') {
+                handleFrankSelection();
+            }
             patientMenu.classList.remove('is-open');
             newApptBtn.setAttribute('aria-expanded', 'false');
         });
         patientMenu.appendChild(item);
     });
+}
+
+function handleFrankSelection() {
+    const monthKey = '2026-02';
+    if (!appointmentsCache.has(monthKey)) {
+        appointmentsCache.set(monthKey, generateAppointmentsForMonth(2026, 1));
+    }
+    const schedule = appointmentsCache.get(monthKey);
+    const feb2Key = `${monthKey}-02`;
+
+    schedule[feb2Key] = schedule[feb2Key] || [];
+
+    const fhRisk = (patientDirectory.find(p => p.name === 'Frank Harrison') || { risk: 96 }).risk;
+
+    // Feb 2: replace Emily Sanders with Frank Harrison
+    const esIndexFeb2 = schedule[feb2Key].findIndex(entry => entry.patient === 'Emily Sanders');
+    if (esIndexFeb2 !== -1) {
+        const esSlot = schedule[feb2Key][esIndexFeb2];
+        schedule[feb2Key][esIndexFeb2] = {
+            doctor: esSlot.doctor,
+            patient: 'Frank Harrison',
+            initials: 'FH',
+            risk: fhRisk,
+            duration: esSlot.duration,
+            startMinutes: esSlot.startMinutes,
+            color: riskToColor(fhRisk),
+            timeLabel: esSlot.timeLabel
+        };
+    }
+
+    appointmentsCache.set(monthKey, schedule);
+    renderCalendar();
+    updateStats();
 }
 
 function initFloatingActions() {
@@ -611,7 +768,7 @@ function formatTime(totalMinutes) {
 function riskToColor(risk) {
     const green = [168, 220, 186];
     const yellow = [246, 226, 158];
-    const red = [210, 140, 140];
+    const red = [190, 70, 70];
     const minAge = 30;
     const maxAge = 85;
     const clamped = Math.min(Math.max(risk, minAge), maxAge);

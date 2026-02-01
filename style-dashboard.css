@@ -28,7 +28,26 @@ body {
     color: #405751;
     opacity: 0;
     animation: pageFadeIn 0.8s var(--ease-smooth) forwards;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 
+}
+
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 @keyframes pageFadeIn {
