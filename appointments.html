@@ -115,7 +115,7 @@
             </div>
 
             <div class="lg:col-span-4 space-y-6 mt-9">
-                <div class="bg-[#1f2937] mt-5 p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
+                <div class="bg-[#1f2937] mt-6 p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
                     <div class="relative z-10">
                         <h2 class="text-xl font-bold mb-3 text-white">Resilience Score</h2>
                         <div class="flex items-baseline gap-2 mb-6">
@@ -189,18 +189,19 @@
         const patients = rawPatients.sort(() => 0.5 - Math.random());
 
         // STYLE LOGIC
+        // STYLE LOGIC
         function getStyles(status, score) {
             if (status === "Critical" || score > 80) {
                 return {
-                    badgeBg: "bg-status-bg_red", 
-                    badgeText: "text-status-red",
+                    badgeBg: "bg-red-100", 
+                    badgeText: "text-red-600",
                     
-                    // This sets the MAIN ring border to red
-                    spinnerColor: "border-status-red", 
+                    // FIXED: Changed 'border-status-red' to standard 'border-red-500'
+                    spinnerColor: "border-red-500", 
                     
-                    // Pulsing effect
                     spinnerAnim: "animate-pulse", 
-                    numberClass: "text-status-red drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+                    // FIXED: Changed 'text-status-red' to 'text-red-500'
+                    numberClass: "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
                 };
             }
             if (status === "Warning") {
@@ -208,7 +209,7 @@
                     badgeBg: "bg-yellow-100", 
                     badgeText: "text-yellow-600",
                     
-                    // This sets the MAIN ring border to yellow
+                    // This was already working because it used standard yellow
                     spinnerColor: "border-yellow-500", 
                     
                     spinnerAnim: "", 
@@ -217,10 +218,10 @@
             }
             return {
                 badgeBg: "bg-green-100", 
-                badgeText: "text-status-green",
+                badgeText: "text-green-600",
                 
-                // This sets the MAIN ring border to green
-                spinnerColor: "border-status-green", 
+                // FIXED: Changed 'border-status-green' to standard 'border-green-500'
+                spinnerColor: "border-green-500", 
                 
                 spinnerAnim: "", 
                 numberClass: "text-brand-dark"
