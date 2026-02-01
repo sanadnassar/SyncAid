@@ -12,6 +12,10 @@ const monthCountDisplay = document.getElementById('monthCount');
 const viewButtons = document.querySelectorAll('.view-btn');
 const calendarContainer = document.querySelector('.calendar');
 const calendarBody = document.querySelector('.calendar-body');
+const newApptBtn = document.getElementById('newApptBtn');
+const patientMenu = document.getElementById('patientMenu');
+const calendarHeader = document.getElementById('calendarHeader');
+const calendarActionsFloating = document.getElementById('calendarActionsFloating');
 
 let currentView = 'month';
 let selectedAppointment = null;
@@ -21,6 +25,38 @@ const WEEK_VIEW_HEIGHT = 990;
 const WEEK_VIEW_PADDING_TOP = 28;
 const WEEK_VIEW_PADDING_BOTTOM = 8;
 const appointmentsCache = new Map();
+const patientDirectory = [
+    { name: 'Frank Harrison', risk: 78 },
+    { name: 'Maria Lopez', risk: 64 },
+    { name: 'Daniel Whitmore', risk: 52 },
+    { name: 'Evelyn Brooks', risk: 81 },
+    { name: "James O'Connell", risk: 69 },
+    { name: 'Aisha Rahman', risk: 47 },
+    { name: 'Robert Jenkins', risk: 73 },
+    { name: 'Linda Matthews', risk: 58 },
+    { name: 'Thomas Caldwell', risk: 66 },
+    { name: 'Priya Patel', risk: 41 },
+    { name: 'Harold Simmons', risk: 84 },
+    { name: 'Naomi Chen', risk: 36 },
+    { name: 'William Foster', risk: 71 },
+    { name: 'Rosa Martinez', risk: 62 },
+    { name: 'Michael Turner', risk: 55 },
+    { name: 'Fatima Hassan', risk: 49 },
+    { name: 'George Whitfield', risk: 77 },
+    { name: 'Emily Sanders', risk: 34 },
+    { name: 'Samuel Greene', risk: 68 },
+    { name: 'Nora Klein', risk: 59 },
+    { name: 'Paul Anderson', risk: 63 },
+    { name: 'Yvonne Dubois', risk: 72 },
+    { name: 'Kevin Morales', risk: 46 },
+    { name: 'Margaret Liu', risk: 80 },
+    { name: 'Jonathan Price', risk: 57 },
+    { name: 'Sofia Alvarez', risk: 39 },
+    { name: 'Dennis Porter', risk: 74 },
+    { name: 'Hannah Rosen', risk: 44 },
+    { name: 'Victor Nguyen', risk: 61 },
+    { name: 'Carol Bennett', risk: 83 }
+];
 
 // Month names
 const monthNames = [
@@ -38,6 +74,8 @@ function initDashboard() {
     initIcons();
     initAOS();
     initRiskChart();
+    initPatientMenu();
+    initFloatingActions();
 }
 
 // Render calendar
@@ -258,6 +296,20 @@ function attachEventListeners() {
             }
         });
     });
+
+    if (newApptBtn && patientMenu) {
+        newApptBtn.addEventListener('click', () => {
+            const isOpen = patientMenu.classList.toggle('is-open');
+            newApptBtn.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!patientMenu.contains(event.target) && !newApptBtn.contains(event.target)) {
+                patientMenu.classList.remove('is-open');
+                newApptBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
 }
 
 function setView(view) {
@@ -276,6 +328,18 @@ function renderMonthView() {
         appointmentsCache.set(monthKey, generateAppointmentsForMonth(year, month));
     }
     const monthAppointments = appointmentsCache.get(monthKey);
+    const prevMonthDate = new Date(year, month - 1, 1);
+    const nextMonthDate = new Date(year, month + 1, 1);
+    const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
+    const nextMonthKey = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}`;
+    if (!appointmentsCache.has(prevMonthKey)) {
+        appointmentsCache.set(prevMonthKey, generateAppointmentsForMonth(prevMonthDate.getFullYear(), prevMonthDate.getMonth()));
+    }
+    if (!appointmentsCache.has(nextMonthKey)) {
+        appointmentsCache.set(nextMonthKey, generateAppointmentsForMonth(nextMonthDate.getFullYear(), nextMonthDate.getMonth()));
+    }
+    const prevMonthAppointments = appointmentsCache.get(prevMonthKey);
+    const nextMonthAppointments = appointmentsCache.get(nextMonthKey);
 
     monthYear.textContent = `${monthNames[month]} ${year}`;
 
@@ -285,7 +349,9 @@ function renderMonthView() {
 
     for (let i = firstDay - 1; i >= 0; i--) {
         const day = daysInPrevMonth - i;
-        createDayElement(day, 'other-month');
+        const dayElement = createDayElement(day, 'other-month');
+        const dateKey = `${prevMonthKey}-${String(day).padStart(2, '0')}`;
+        addAppointmentBlocks(dayElement, prevMonthAppointments[dateKey], 'month');
     }
 
     const today = new Date();
@@ -308,7 +374,9 @@ function renderMonthView() {
     const totalCells = calendarGrid.children.length;
     const remainingCells = 42 - totalCells;
     for (let day = 1; day <= remainingCells; day++) {
-        createDayElement(day, 'other-month');
+        const dayElement = createDayElement(day, 'other-month');
+        const dateKey = `${nextMonthKey}-${String(day).padStart(2, '0')}`;
+        addAppointmentBlocks(dayElement, nextMonthAppointments[dateKey], 'month');
     }
 }
 
@@ -392,38 +460,7 @@ function generateAppointmentsForMonth(year, month) {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const rng = mulberry32(hashString(monthKey));
     const doctors = ['Dr. Rana', 'Dr. Lynn', 'Dr. Ito'];
-    const patients = [
-        { name: 'Frank Harrison', risk: 78 },
-        { name: 'Maria Lopez', risk: 64 },
-        { name: 'Daniel Whitmore', risk: 52 },
-        { name: 'Evelyn Brooks', risk: 81 },
-        { name: "James O'Connell", risk: 69 },
-        { name: 'Aisha Rahman', risk: 47 },
-        { name: 'Robert Jenkins', risk: 73 },
-        { name: 'Linda Matthews', risk: 58 },
-        { name: 'Thomas Caldwell', risk: 66 },
-        { name: 'Priya Patel', risk: 41 },
-        { name: 'Harold Simmons', risk: 84 },
-        { name: 'Naomi Chen', risk: 36 },
-        { name: 'William Foster', risk: 71 },
-        { name: 'Rosa Martinez', risk: 62 },
-        { name: 'Michael Turner', risk: 55 },
-        { name: 'Fatima Hassan', risk: 49 },
-        { name: 'George Whitfield', risk: 77 },
-        { name: 'Emily Sanders', risk: 34 },
-        { name: 'Samuel Greene', risk: 68 },
-        { name: 'Nora Klein', risk: 59 },
-        { name: 'Paul Anderson', risk: 63 },
-        { name: 'Yvonne Dubois', risk: 72 },
-        { name: 'Kevin Morales', risk: 46 },
-        { name: 'Margaret Liu', risk: 80 },
-        { name: 'Jonathan Price', risk: 57 },
-        { name: 'Sofia Alvarez', risk: 39 },
-        { name: 'Dennis Porter', risk: 74 },
-        { name: 'Hannah Rosen', risk: 44 },
-        { name: 'Victor Nguyen', risk: 61 },
-        { name: 'Carol Bennett', risk: 83 }
-    ];
+    const patients = patientDirectory;
     const schedule = {};
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -507,6 +544,62 @@ function generateAppointmentsForMonth(year, month) {
     return schedule;
 }
 
+function initPatientMenu() {
+    if (!patientMenu) return;
+    patientMenu.innerHTML = '';
+    patientDirectory.forEach((patient) => {
+        const item = document.createElement('div');
+        item.className = 'patient-dropdown__item';
+        item.textContent = patient.name;
+        item.setAttribute('role', 'option');
+        item.style.setProperty('--risk-color', riskToColor(patient.risk));
+        item.addEventListener('click', () => {
+            patientMenu.classList.remove('is-open');
+            newApptBtn.setAttribute('aria-expanded', 'false');
+        });
+        patientMenu.appendChild(item);
+    });
+}
+
+function initFloatingActions() {
+    if (!calendarActionsFloating || !calendarHeader) return;
+    const appHeader = document.querySelector('.app-header');
+    const headerOffset = appHeader ? appHeader.getBoundingClientRect().height : 72;
+    const originalParent = calendarActionsFloating.parentElement;
+
+    const syncPosition = () => {
+        const headerRect = calendarHeader.getBoundingClientRect();
+        const shouldFix = headerRect.top <= headerOffset;
+
+        if (shouldFix) {
+            calendarActionsFloating.classList.add('is-fixed');
+            if (calendarActionsFloating.parentElement !== document.body) {
+                document.body.appendChild(calendarActionsFloating);
+            }
+            const rightEdge = Math.min(
+                headerRect.right,
+                window.innerWidth - 16
+            );
+
+            const offset = 10;
+            calendarActionsFloating.style.left = `${rightEdge - calendarActionsFloating.offsetWidth - offset}px`;
+            calendarActionsFloating.style.top = `${headerOffset + 8}px`;
+        } else {
+            calendarActionsFloating.classList.remove('is-fixed');
+            calendarActionsFloating.style.left = '';
+            calendarActionsFloating.style.top = '';
+            if (calendarActionsFloating.parentElement !== originalParent) {
+                originalParent.appendChild(calendarActionsFloating);
+            }
+        }
+    };
+
+    syncPosition();
+    window.addEventListener('scroll', syncPosition, { passive: true });
+    window.addEventListener('resize', syncPosition);
+}
+
+
 function formatTime(totalMinutes) {
     const hours24 = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -516,16 +609,20 @@ function formatTime(totalMinutes) {
 }
 
 function riskToColor(risk) {
-    const green = [107, 191, 124];
-    const yellow = [245, 211, 106];
-    const red = [122, 30, 30];
+    const green = [168, 220, 186];
+    const yellow = [246, 226, 158];
+    const red = [210, 140, 140];
+    const minAge = 30;
+    const maxAge = 85;
+    const clamped = Math.min(Math.max(risk, minAge), maxAge);
+    const normalized = (clamped - minAge) / (maxAge - minAge);
     let from = green;
     let to = yellow;
-    let t = risk / 50;
-    if (risk > 50) {
+    let t = normalized / 0.5;
+    if (normalized > 0.5) {
         from = yellow;
         to = red;
-        t = (risk - 50) / 50;
+        t = (normalized - 0.5) / 0.5;
     }
     const r = Math.round(from[0] + (to[0] - from[0]) * t);
     const g = Math.round(from[1] + (to[1] - from[1]) * t);
