@@ -8,6 +8,8 @@ This creates a vicious cycle: delays make patients sicker, care becomes more com
 
 SyncAid breaks that cycle.
 
+https://sanadnassar.github.io/SyncAid/
+
 ## What SyncAid does
 SyncAid introduces risk-adaptive scheduling, a proactive system that continuously evaluates appointment risk and adjusts schedules to protect both patients and providers.
 
