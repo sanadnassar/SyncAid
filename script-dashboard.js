@@ -243,7 +243,9 @@ function updateStats() {
     const viewMonth = currentDate.getMonth();
     const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
 
-    if (!appointmentsCache.has(monthKey)) {
+    if (monthKey === '2026-02') {
+        appointmentsCache.set(monthKey, generateAppointmentsForMonth(viewYear, viewMonth));
+    } else if (!appointmentsCache.has(monthKey)) {
         appointmentsCache.set(monthKey, generateAppointmentsForMonth(viewYear, viewMonth));
     }
     const monthAppointments = appointmentsCache.get(monthKey);
@@ -331,7 +333,9 @@ function renderMonthView() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-    if (!appointmentsCache.has(monthKey)) {
+    if (monthKey === '2026-02') {
+        appointmentsCache.set(monthKey, generateAppointmentsForMonth(year, month));
+    } else if (!appointmentsCache.has(monthKey)) {
         appointmentsCache.set(monthKey, generateAppointmentsForMonth(year, month));
     }
     const monthAppointments = appointmentsCache.get(monthKey);
@@ -392,14 +396,20 @@ function renderWeekView() {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
     const monthKey = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}`;
-    if (!appointmentsCache.has(monthKey)) {
+    if (monthKey === '2026-02') {
+        appointmentsCache.set(monthKey, generateAppointmentsForMonth(weekStart.getFullYear(), weekStart.getMonth()));
+    } else if (!appointmentsCache.has(monthKey)) {
         appointmentsCache.set(monthKey, generateAppointmentsForMonth(weekStart.getFullYear(), weekStart.getMonth()));
     }
     const monthAppointments = appointmentsCache.get(monthKey);
 
     const weekEndMonthKey = `${weekEnd.getFullYear()}-${String(weekEnd.getMonth() + 1).padStart(2, '0')}`;
-    if (weekEndMonthKey !== monthKey && !appointmentsCache.has(weekEndMonthKey)) {
-        appointmentsCache.set(weekEndMonthKey, generateAppointmentsForMonth(weekEnd.getFullYear(), weekEnd.getMonth()));
+    if (weekEndMonthKey !== monthKey) {
+        if (weekEndMonthKey === '2026-02') {
+            appointmentsCache.set(weekEndMonthKey, generateAppointmentsForMonth(weekEnd.getFullYear(), weekEnd.getMonth()));
+        } else if (!appointmentsCache.has(weekEndMonthKey)) {
+            appointmentsCache.set(weekEndMonthKey, generateAppointmentsForMonth(weekEnd.getFullYear(), weekEnd.getMonth()));
+        }
     }
     const nextMonthAppointments = appointmentsCache.get(weekEndMonthKey);
 
@@ -505,6 +515,11 @@ function generateAppointmentsForMonth(year, month, forceRandom = false) {
     }
 
     if (monthKey === '2026-02') {
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateKey = `2026-02-${String(day).padStart(2, '0')}`;
+            schedule[dateKey] = [];
+        }
+
         const hardcoded = {
             '2026-02-01': [
                 { patient: 'Maria Lopez', risk: 28, start: 9 * 60, duration: 45 },
@@ -532,6 +547,23 @@ function generateAppointmentsForMonth(year, month, forceRandom = false) {
             ,
             '2026-02-06': [
                 { patient: 'Yvonne Dubois', risk: 73, start: 11 * 60, duration: 60 }
+            ]
+            ,
+            '2026-02-07': [
+                { patient: 'Rosa Martinez', risk: 41, start: 9 * 60, duration: 45 },
+                { patient: 'Victor Nguyen', risk: 42, start: 13 * 60, duration: 30 }
+            ],
+            '2026-02-08': [
+                { patient: 'Linda Matthews', risk: 35, start: 10 * 60 + 30, duration: 30 },
+                { patient: 'Samuel Greene', risk: 55, start: 14 * 60, duration: 45 }
+            ],
+            '2026-02-09': [
+                { patient: 'Paul Anderson', risk: 44, start: 9 * 60 + 30, duration: 45 },
+                { patient: 'Margaret Liu', risk: 75, start: 15 * 60, duration: 45 }
+            ],
+            '2026-02-10': [
+                { patient: 'Kevin Morales', risk: 19, start: 8 * 60 + 30, duration: 30 },
+                { patient: 'Jonathan Price', risk: 36, start: 12 * 60, duration: 45 }
             ]
         };
 
