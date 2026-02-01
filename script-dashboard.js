@@ -25,6 +25,8 @@ const WEEK_VIEW_HEIGHT = 990;
 const WEEK_VIEW_PADDING_TOP = 28;
 const WEEK_VIEW_PADDING_BOTTOM = 8;
 const appointmentsCache = new Map();
+let frankSwapApplied = false;
+let swapAnimationActive = false;
 let listenersAttached = false;
 const patientDirectory = [
 { name: 'Frank Harrison', risk: 96 },
@@ -144,7 +146,7 @@ function selectAppointment(appointmentEl) {
     selectedAppointment.classList.add('is-selected');
 }
 
-function addAppointmentBlocks(dayElement, appointments = [], variant = 'month') {
+function addAppointmentBlocks(dayElement, appointments = [], variant = 'month', dateKey = '') {
     if (!appointments.length) return;
     const container = dayElement.querySelector('.appointments');
     const isWeekView = variant === 'week';
@@ -152,12 +154,30 @@ function addAppointmentBlocks(dayElement, appointments = [], variant = 'month') 
     const availableHeight = WEEK_VIEW_HEIGHT - WEEK_VIEW_PADDING_TOP - WEEK_VIEW_PADDING_BOTTOM;
 
     appointments.forEach(appointment => {
+        const animateSwap = swapAnimationActive && dateKey.startsWith('2026-02-') && ['2026-02-02', '2026-02-05', '2026-02-06'].includes(dateKey);
+        const isSwapTarget = swapAnimationActive && (
+            (appointment.patient === 'Emily Sanders' && dateKey === '2026-02-05') ||
+            (appointment.patient === 'Michael Turner' && dateKey === '2026-02-06')
+        );
+        const isFrankTarget = swapAnimationActive && appointment.patient === 'Frank Harrison' && dateKey === '2026-02-02';
         const appointmentEl = document.createElement('button');
         appointmentEl.type = 'button';
         appointmentEl.className = 'appointment-block';
         appointmentEl.dataset.risk = appointment.risk;
+        appointmentEl.dataset.patient = appointment.patient;
+        appointmentEl.dataset.date = dateKey;
         appointmentEl.style.background = '#ECF4F3';
         appointmentEl.style.setProperty('--risk-color', appointment.color);
+        if (animateSwap && ['Frank Harrison', 'Emily Sanders', 'Michael Turner'].includes(appointment.patient)) {
+            appointmentEl.classList.add('swap-animate');
+        }
+        if (isSwapTarget) {
+            appointmentEl.classList.add('swap-placeholder');
+        }
+        if (isFrankTarget) {
+            appointmentEl.classList.add('swap-hidden');
+            appointmentEl.style.opacity = '0';
+        }
         if (isWeekView) {
             appointmentEl.classList.add('appointment-block--week');
             appointmentEl.innerHTML = `
@@ -362,7 +382,7 @@ function renderMonthView() {
         const day = daysInPrevMonth - i;
         const dayElement = createDayElement(day, 'other-month');
         const dateKey = `${prevMonthKey}-${String(day).padStart(2, '0')}`;
-        addAppointmentBlocks(dayElement, prevMonthAppointments[dateKey], 'month');
+        addAppointmentBlocks(dayElement, prevMonthAppointments[dateKey], 'month', dateKey);
     }
 
     const today = new Date();
@@ -378,7 +398,7 @@ function renderMonthView() {
         }
 
         const dateKey = `${monthKey}-${String(day).padStart(2, '0')}`;
-        addAppointmentBlocks(dayElement, monthAppointments[dateKey], 'month');
+        addAppointmentBlocks(dayElement, monthAppointments[dateKey], 'month', dateKey);
         dayElement.addEventListener('click', () => selectDate(dayElement));
     }
 
@@ -387,7 +407,7 @@ function renderMonthView() {
     for (let day = 1; day <= remainingCells; day++) {
         const dayElement = createDayElement(day, 'other-month');
         const dateKey = `${nextMonthKey}-${String(day).padStart(2, '0')}`;
-        addAppointmentBlocks(dayElement, nextMonthAppointments[dateKey], 'month');
+        addAppointmentBlocks(dayElement, nextMonthAppointments[dateKey], 'month', dateKey);
     }
 }
 
@@ -452,7 +472,7 @@ function renderWeekView() {
         const appointmentSource = weekEndMonthKey === monthKey
             ? monthAppointments
             : (dateKey.startsWith(monthKey) ? monthAppointments : nextMonthAppointments);
-        addAppointmentBlocks(dayElement, appointmentSource[dateKey], 'week');
+        addAppointmentBlocks(dayElement, appointmentSource[dateKey], 'week', dateKey);
         dayElement.addEventListener('click', () => selectDate(dayElement));
     }
 }
@@ -622,6 +642,10 @@ function generateAppointmentsForMonth(year, month, forceRandom = false) {
                 });
             }
         }
+
+        if (frankSwapApplied) {
+            applyFrankSwap(schedule, doctors);
+        }
     }
 
     if (month === 0) {
@@ -718,18 +742,31 @@ function initPatientMenu() {
 }
 
 function handleFrankSelection() {
-    const monthKey = '2026-02';
-    if (!appointmentsCache.has(monthKey)) {
-        appointmentsCache.set(monthKey, generateAppointmentsForMonth(2026, 1));
-    }
-    const schedule = appointmentsCache.get(monthKey);
-    const feb2Key = `${monthKey}-02`;
+    if (frankSwapApplied) return;
+    const before = captureSwapPositions();
+    frankSwapApplied = true;
+    swapAnimationActive = true;
+    renderCalendar();
+    updateStats();
+    setTimeout(() => {
+        runSwapAnimation(before);
+        swapAnimationActive = false;
+    }, 260);
+}
+
+function applyFrankSwap(schedule, doctors) {
+    const feb2Key = '2026-02-02';
+    const feb5Key = '2026-02-05';
+    const feb6Key = '2026-02-06';
 
     schedule[feb2Key] = schedule[feb2Key] || [];
+    schedule[feb5Key] = schedule[feb5Key] || [];
+    schedule[feb6Key] = schedule[feb6Key] || [];
 
     const fhRisk = (patientDirectory.find(p => p.name === 'Frank Harrison') || { risk: 96 }).risk;
+    const esRisk = (patientDirectory.find(p => p.name === 'Emily Sanders') || { risk: 12 }).risk;
+    const mtRisk = (patientDirectory.find(p => p.name === 'Michael Turner') || { risk: 33 }).risk;
 
-    // Feb 2: replace Emily Sanders with Frank Harrison
     const esIndexFeb2 = schedule[feb2Key].findIndex(entry => entry.patient === 'Emily Sanders');
     if (esIndexFeb2 !== -1) {
         const esSlot = schedule[feb2Key][esIndexFeb2];
@@ -745,9 +782,209 @@ function handleFrankSelection() {
         };
     }
 
-    appointmentsCache.set(monthKey, schedule);
-    renderCalendar();
-    updateStats();
+    const mtIndexFeb5 = schedule[feb5Key].findIndex(entry => entry.patient === 'Michael Turner');
+    if (mtIndexFeb5 !== -1) {
+        const mtSlot = schedule[feb5Key][mtIndexFeb5];
+        schedule[feb5Key][mtIndexFeb5] = {
+            doctor: mtSlot.doctor,
+            patient: 'Emily Sanders',
+            initials: 'ES',
+            risk: esRisk,
+            duration: mtSlot.duration,
+            startMinutes: mtSlot.startMinutes,
+            color: riskToColor(esRisk),
+            timeLabel: mtSlot.timeLabel
+        };
+
+        const yvonneSlot = (schedule[feb6Key] || []).find(entry => entry.patient === 'Yvonne Dubois');
+        const baseStart = yvonneSlot ? yvonneSlot.startMinutes + yvonneSlot.duration : WEEK_START_HOUR * 60 + 30;
+        const mtStart = baseStart + 15;
+        const mtDuration = mtSlot.duration || 30;
+        const mtEnd = mtStart + mtDuration;
+        schedule[feb6Key].push({
+            doctor: mtSlot.doctor,
+            patient: 'Michael Turner',
+            initials: 'MT',
+            risk: mtRisk,
+            duration: mtDuration,
+            startMinutes: mtStart,
+            color: riskToColor(mtRisk),
+            timeLabel: `${formatTime(mtStart)}–${formatTime(mtEnd)}`
+        });
+    }
+}
+
+function captureSwapPositions() {
+    const targets = [
+        { patient: 'Emily Sanders', date: '2026-02-02' },
+        { patient: 'Michael Turner', date: '2026-02-05' }
+    ];
+    return targets
+        .map(target => {
+            const el = document.querySelector(
+                `.appointment-block[data-patient="${target.patient}"][data-date="${target.date}"]`
+            );
+            if (!el) return null;
+            const rect = el.getBoundingClientRect();
+            const riskColor = getComputedStyle(el).getPropertyValue('--risk-color').trim();
+            return {
+                patient: target.patient,
+                date: target.date,
+                rect,
+                html: el.innerHTML,
+                className: el.className,
+                riskColor
+            };
+        })
+        .filter(Boolean);
+}
+
+function runSwapAnimation(before) {
+    if (!before.length) return;
+    const duration = 1350;
+
+    const animateFrankDrop = (delayMs = 0) => new Promise((resolve) => {
+        const fhEl = document.querySelector(
+            `.appointment-block[data-patient="Frank Harrison"][data-date="2026-02-02"]`
+        );
+        if (!fhEl) {
+            resolve();
+            return;
+        }
+        const targetRect = fhEl.getBoundingClientRect();
+        const monLabel = Array.from(document.querySelectorAll('.weekday'))
+            .find(el => el.textContent.trim() === 'Mon');
+        const monRect = monLabel ? monLabel.getBoundingClientRect() : null;
+        const riskColor = getComputedStyle(fhEl).getPropertyValue('--risk-color').trim();
+        fhEl.style.opacity = '0';
+        fhEl.classList.add('swap-hidden');
+
+        const startTop = (monRect ? monRect.top : targetRect.top) - targetRect.height - 8;
+        const dropDistance = Math.max(0, targetRect.top - startTop);
+
+        const start = () => {
+            const ghost = document.createElement('div');
+            ghost.className = fhEl.className;
+            ghost.innerHTML = fhEl.innerHTML;
+            ghost.classList.remove('swap-hidden');
+            ghost.style.position = 'fixed';
+            ghost.style.left = `${targetRect.left}px`;
+            ghost.style.top = `${startTop}px`;
+            ghost.style.width = `${targetRect.width}px`;
+            ghost.style.height = `${targetRect.height}px`;
+            ghost.style.margin = '0';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.zIndex = '3000';
+            ghost.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1), opacity ${duration}ms ease`;
+            ghost.style.transform = 'translate(0, 0)';
+            ghost.style.opacity = '1';
+            if (riskColor) {
+                ghost.style.setProperty('--risk-color', riskColor);
+            }
+
+            document.body.appendChild(ghost);
+
+            requestAnimationFrame(() => {
+                ghost.animate(
+                    [
+                        { transform: 'translateY(0)', opacity: 0 },
+                        { transform: `translateY(${dropDistance}px)`, opacity: 1 }
+                    ],
+                    {
+                        duration,
+                        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                        fill: 'forwards'
+                    }
+                );
+            });
+
+            setTimeout(() => {
+                ghost.remove();
+                fhEl.classList.remove('swap-hidden');
+                fhEl.style.opacity = '';
+                resolve();
+            }, duration + 50);
+        };
+
+        if (delayMs > 0) {
+            setTimeout(start, delayMs);
+        } else {
+            start();
+        }
+    });
+
+    const animateOne = (item, delayMs = 0) => new Promise((resolve) => {
+        const newDate = item.patient === 'Emily Sanders' ? '2026-02-05' : '2026-02-06';
+        const newEl = document.querySelector(
+            `.appointment-block[data-patient="${item.patient}"][data-date="${newDate}"]`
+        );
+        if (!newEl) {
+            resolve();
+            return;
+        }
+        const newRect = newEl.getBoundingClientRect();
+        newEl.classList.add('swap-placeholder');
+
+        const start = () => {
+            const ghost = document.createElement('div');
+            ghost.className = item.className;
+            ghost.innerHTML = item.html;
+            ghost.style.position = 'fixed';
+            ghost.style.left = `${item.rect.left}px`;
+            ghost.style.top = `${item.rect.top}px`;
+            ghost.style.width = `${item.rect.width}px`;
+            ghost.style.height = `${item.rect.height}px`;
+            ghost.style.margin = '0';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.zIndex = '3000';
+            ghost.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1), opacity ${duration}ms ease`;
+            ghost.style.transform = 'translate(0, 0)';
+            ghost.style.opacity = '1';
+            if (item.riskColor) {
+                ghost.style.setProperty('--risk-color', item.riskColor);
+            }
+
+            document.body.appendChild(ghost);
+
+            requestAnimationFrame(() => {
+                const dx = newRect.left - item.rect.left;
+                const dy = newRect.top - item.rect.top;
+                ghost.style.transform = `translate(${dx}px, ${dy}px)`;
+            });
+
+            setTimeout(() => {
+                ghost.remove();
+                newEl.classList.remove('swap-placeholder');
+                resolve();
+            }, duration + 50);
+        };
+
+        if (delayMs > 0) {
+            setTimeout(start, delayMs);
+        } else {
+            start();
+        }
+    });
+
+    const esItem = before.find(item => item.patient === 'Emily Sanders');
+    const mtItem = before.find(item => item.patient === 'Michael Turner');
+
+    if (esItem && mtItem) {
+        const overlapDelay = Math.max(0, Math.floor(duration * 0.85));
+        const esDelay = Math.max(0, Math.floor(duration * 0.8));
+        animateFrankDrop(0);
+        animateOne(esItem, esDelay);
+        animateOne(mtItem, esDelay + overlapDelay);
+        return;
+    }
+
+    if (before.length === 1) {
+        animateFrankDrop(0).then(() => animateOne(before[0]));
+        return;
+    }
+
+    animateFrankDrop(0);
+    before.reduce((promise, item) => promise.then(() => animateOne(item)), Promise.resolve());
 }
 
 function initFloatingActions() {
