@@ -26,7 +26,7 @@
                 <div class="calendar-section" data-aos="fade-up" data-aos-duration="900">
                     <h2>Calendar</h2>
                     <div class="calendar-wrapper">
-                        <div class="calendar-header">
+                        <div class="calendar-header" id="calendarHeader">
                             <div class="calendar-controls">
                                 <button id="prevMonth" class="nav-btn" aria-label="Previous month">
                                     <i data-lucide="chevron-left"></i>
@@ -36,12 +36,17 @@
                                     <i data-lucide="chevron-right"></i>
                                 </button>
                             </div>
-                            <div class="calendar-actions">
-                                <div class="view-toggle" role="group" aria-label="Calendar view">
-                                    <button class="view-btn is-active" type="button" data-view="month">Month</button>
-                                    <button class="view-btn" type="button" data-view="week">Week</button>
-                                </div>
-                                <button class="primary-btn primary-btn--alert" type="button">New Appointment</button>
+                        </div>
+                        <div class="calendar-actions-floating" id="calendarActionsFloating">
+                            <div class="view-toggle" role="group" aria-label="Calendar view">
+                                <button class="view-btn is-active" type="button" data-view="month">Month</button>
+                                <button class="view-btn" type="button" data-view="week">Week</button>
+                            </div>
+                            <div class="patient-dropdown">
+                                <button class="primary-btn primary-btn--alert" type="button" id="newApptBtn" aria-haspopup="listbox" aria-expanded="false">
+                                    New Appointment
+                                </button>
+                                <div class="patient-dropdown__menu" id="patientMenu" role="listbox" aria-label="Select patient"></div>
                             </div>
                         </div>
                         <div class="calendar">
@@ -70,7 +75,7 @@
                                 <i data-lucide="calendar-check"></i>
                                 <h3>Upcoming</h3>
                             </div>
-                            <p class="stat-number">0</p>
+                            <p class="stat-number" id="upcomingCount">0</p>
                             <p class="stat-label">Appointments</p>
                         </div>
                         <div class="stat-card">
@@ -78,7 +83,7 @@
                                 <i data-lucide="activity"></i>
                                 <h3>This Month</h3>
                             </div>
-                            <p class="stat-number">0</p>
+                            <p class="stat-number" id="monthCount">0</p>
                             <p class="stat-label">Events</p>
                         </div>
                         <div class="stat-card">

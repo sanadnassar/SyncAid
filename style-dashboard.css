@@ -23,11 +23,31 @@
 body {
     font-family: 'Avenir Next', 'Manrope', 'Segoe UI', sans-serif; 
     background: #b4d8da; /* Fallback */
-    background: linear-gradient(135deg, #b4d8da 0%, #d4eaea 100%);
+    background: linear-gradient(135deg, #61b6d4 0%, #d4eaea 100%);
     min-height: 100vh;
     color: #405751;
     opacity: 0;
     animation: pageFadeIn 0.8s var(--ease-smooth) forwards;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+}
+
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 @keyframes pageFadeIn {
@@ -161,6 +181,8 @@ main {
     padding: 22px;
     border-radius: var(--radius);
     transition: height 0.3s ease;
+    position: relative;
+    overflow: visible;
 }
 
 .calendar-header {
@@ -169,6 +191,13 @@ main {
     align-items: center;
     margin-bottom: 20px;
     gap: 16px;
+    background: rgba(233, 239, 246, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 24px rgba(64, 87, 81, 0.12);
+    border: 1px solid rgba(188, 217, 221, 0.6);
 }
 
 .calendar-controls {
@@ -183,31 +212,90 @@ main {
     gap: 12px;
 }
 
-.view-toggle {
+.calendar-actions .view-toggle {
+    background: #E9EFF6;
+}
+
+.calendar-actions-floating {
+    position: absolute;
+    top: 27px;
+    right: 33px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 6px;
+    background: rgba(233, 239, 246, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(188, 217, 221, 0.6);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 24px rgba(64, 87, 81, 0.12);
+    width: fit-content;
+    max-width: calc(100% - 28px);
+    z-index: 20;
+    overflow: visible;
+}
+
+.calendar-actions-floating .view-btn,
+.calendar-actions-floating .primary-btn {
+    position: relative;
+    z-index: 2001;
+}
+
+.calendar-actions-floating.is-fixed {
+    position: fixed;
+    right: auto;
+    z-index: 2000;
+    box-shadow: 0 20px 36px rgba(64, 87, 81, 0.32);
+}
+
+.calendar-actions-floating .view-toggle {
     display: inline-flex;
     align-items: center;
     background: #E9EFF6;
-    border-radius: var(--radius);
-    padding: 4px;
+    border-radius: calc(var(--radius) - 6px);
+    padding: 0;
     border: 1px solid rgba(188, 217, 221, 0.7);
+    overflow: hidden;
 }
 
-.view-btn {
+.calendar-actions-floating .view-btn {
     background: transparent;
     color: #405751;
     border: none;
-    padding: 12px 18px;
-    border-radius: var(--radius);
+    padding: 10px 14px;
+    border-radius: 0;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s var(--ease-elastic);
 }
 
-.view-btn.is-active {
-    background: #C6E9F7;
-    box-shadow: 0 4px 10px rgba(64, 87, 81, 0.1);
-    transform: scale(1.02);
+.calendar-actions-floating .view-btn.is-active {
+    background: #405751;
+    color: #F3F5F9;
+}
+
+.calendar-actions-floating .view-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(64, 87, 81, 0.15);
+}
+
+.calendar-actions-floating .view-btn:active {
+    transform: scale(0.95);
+}
+
+.calendar-actions-floating .view-btn.is-active[data-view="month"] {
+    box-shadow: 8px 0 16px rgba(64, 87, 81, 0.22);
+}
+
+.calendar-actions-floating .view-btn.is-active[data-view="week"] {
+    box-shadow: -8px 0 16px rgba(64, 87, 81, 0.22);
+}
+
+.calendar-actions-floating .view-btn:not(.is-active) {
+    box-shadow: none;
+    background: rgba(233, 239, 246, 0.7);
 }
 
 .primary-btn {
@@ -221,6 +309,17 @@ main {
     cursor: pointer;
     box-shadow: 0 8px 18px rgba(64, 87, 81, 0.12);
     transition: all 0.3s var(--ease-elastic);
+}
+
+.calendar-actions-floating .primary-btn {
+    border-radius: 0 calc(var(--radius) - 6px) calc(var(--radius) - 6px) 0;
+    padding: 10px 16px;
+    margin-left: -1px;
+}
+
+.calendar-actions-floating .view-toggle {
+    border-right: 0;
+    border-radius: calc(var(--radius) - 6px) 0 0 calc(var(--radius) - 6px);
 }
 
 .primary-btn:hover {
@@ -240,6 +339,71 @@ main {
 
 .primary-btn--alert:hover {
     background: #D77B7B;
+}
+
+.patient-dropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+.patient-dropdown__menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 2px);
+    width: 100%;
+    max-height: 260px;
+    overflow-y: auto;
+    background: #E9EFF6;
+    border: 1px solid rgba(64, 87, 81, 0.12);
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: 0 12px 30px rgba(64, 87, 81, 0.12);
+    padding: 0;
+    display: none;
+    z-index: 20;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.35s var(--ease-smooth), transform 0.35s var(--ease-smooth);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.patient-dropdown__menu::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+.patient-dropdown__menu.is-open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.patient-dropdown__item {
+    padding: 8px 12px;
+    border-radius: 0;
+    font-size: 13px;
+    color: #405751;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    position: relative;
+    padding-right: 22px;
+}
+
+.patient-dropdown__item:hover {
+    background: rgba(198, 233, 247, 0.6);
+}
+
+.patient-dropdown__item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 8px;
+    border-radius: 0;
+    background: var(--risk-color, #BCD9DD);
 }
 
 .calendar-header h3 {
@@ -516,6 +680,10 @@ main {
     background-color: #E9EFF6;
     cursor: default;
     opacity: 0.6;
+}
+
+.calendar-day.other-month .appointment-block {
+    opacity: 0.55;
 }
 
 .calendar-day.other-month:hover {
