@@ -14,14 +14,14 @@
                 extend: {
                     colors: {
                         brand: {
-                            blue: '#61b6d4',    // Outer Background
-                            dark: '#1e293b',    // New Primary Text (Slate-800)
-                            muted: '#64748b',   // New Secondary Text (Slate-500)
+                            blue: '#61b6d4',
+                            dark: '#1e293b',
+                            muted: '#64748b',
                         },
                         status: {
                             green: '#22c55e',   
                             red: '#ef4444', 
-                            bg_red: '#fee2e2',  // Light red background for tags
+                            bg_red: '#fee2e2',
                         }
                     },
                     animation: {
@@ -42,8 +42,26 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
 
-        body {
-            animation: pageFadeIn 0.8s ease-out forwards;
+        body { animation: pageFadeIn 0.8s ease-out forwards; }
+
+        /* Animation Classes */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-right { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-left  { animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes criticalGlow {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.05); }
+        }
+        .animate-critical {
+            animation: criticalGlow 1.5s ease-in-out infinite;
         }
     </style>
 </head>
@@ -66,21 +84,24 @@
 
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-[#E9EFF6] rounded-[2.5rem] shadow-2xl p-8 lg:p-10">
             
-            <div class="lg:col-span-8 space-y-8">
-                
+            <div class="lg:col-span-8 space-y-8 relative pb-24">
+    
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-black uppercase tracking-widest text-brand-muted mb-0 flex items-center gap-2">
+                    <h2 class="text-xs font-black uppercase tracking-widest text-brand-muted pl-4 mb-0 flex items-center gap-2">
                         <i data-lucide="calendar-clock" class="w-4 h-4 text-brand-dark"></i> 
                         Today's Triage 
-                        <span id="today-date" class="ml-auto text-[10px] font-bold text-brand-muted/70 bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"></span>
+                        <span id="today-date" class="ml-2 text-[10px] font-bold text-brand-muted/70 bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"></span>
                     </h2>
+                    <span id="patient-count" class="text-xs font-bold text-brand-muted bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">
+                        Loading...
+                    </span>
                 </div>
 
-                <div id="patient-display" class="min-h-[400px]">
+                <div id="patient-display">
                     </div>
 
-                <div class="flex items-center justify-between bg-white p-2 rounded-full border border-gray-100 shadow-sm max-w-xs mx-auto">
-                    <button id="prev-btn" class="p-2 rounded-full hover:bg-gray-100 text-brand-dark transition-colors disabled:opacity-50 cursor-pointer">
+                <div class="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between bg-white p-2 rounded-full border border-gray-100 shadow-xl max-w-xs mx-auto w-full">
+                    <button id="prev-btn" class="p-3 rounded-full hover:bg-gray-100 text-brand-dark transition-colors disabled:opacity-50 cursor-pointer">
                         <i data-lucide="chevron-left" class="w-5 h-5"></i>
                     </button>
                     
@@ -101,7 +122,7 @@
                             <span class="text-6xl font-black tracking-tighter text-white">68%</span>
                             <span class="text-sm text-gray-400 font-medium">Avg</span>
                         </div>
-                        <p class="text-gray-300 text-sm leading-relaxed border-t border-gray-700 pt-5">
+                        <p class="text-gray-300 text-sm leading-relaxed border-t border-grey-600 pt-5">
                             3 patients require immediate intervention based on predictive storm tracking.
                         </p>
                     </div>
@@ -118,8 +139,7 @@
                             </span>
                             Dispatch Med-Kit 04
                         </li>
-                        <li class="flex items-center gap-3 text-sm font-bold text-brand-dark
-                                   hover:translate-x-1 transition-transform cursor-pointer">
+                        <li class="flex items-center gap-3 text-sm font-bold text-brand-dark hover:translate-x-1 transition-transform cursor-pointer">
                             <span class="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></span>
                             Verify Battery Backups
                         </li>
@@ -132,296 +152,109 @@
 
     <script>
         const rawPatients = [
-            { 
-                name: "Frank Harrison", 
-                score: 96, 
-                triage: "Ventilator Dependent", 
-                history: "Power grid failure detected in Sector 8. Backup generator fuel is critical (estimated 2 hours remaining).", 
-                ai: "Immediate extraction required. Dispatch ALS unit for transport to City General.", 
-                status: "Critical" 
-            },
-            { 
-                name: "Maria Lopez", 
-                score: 28, 
-                triage: "Routine Prenatal", 
-                history: "Patient is sheltered in place. Vital signs synced via wearable are normal.", 
-                ai: "No action required. Schedule virtual check-in for post-storm assessment.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Daniel Whitmore", 
-                score: 22, 
-                triage: "Minor Laceration", 
-                history: "Injury treated locally. Infection risk is low. Supplies are adequate.", 
-                ai: "Monitor via app. Send wound care reminder in 24 hours.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Evelyn Brooks", 
-                score: 60, 
-                triage: "COPD Management", 
-                history: "Oxygen tank levels at 30%. Delivery truck delayed by flooding in Zone 3.", 
-                ai: "Reroute Med-Kit Drone 14 to this location for canister resupply.", 
-                status: "Warning" 
-            },
-            { 
-                name: "James O'Connell", 
-                score: 48, 
-                triage: "Post-Op Recovery", 
-                history: "Knee replacement surgery 3 days ago. Mobility is limited but safe in ground-floor housing.", 
-                ai: "Flag for mobility assistance if evacuation order is upgraded to Zone 4.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Aisha Rahman", 
-                score: 18, 
-                triage: "Mild Anxiety", 
-                history: "Reported stress due to storm alerts. Heart rate slightly elevated but stable.", 
-                ai: "Automated wellness check sent via SMS.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Robert Jenkins", 
-                score: 70, 
-                triage: "Mobility Impairment", 
-                history: "Wheelchair user on 4th floor. Building elevator power is fluctuating.", 
-                ai: "Alert local fire captain. prioritize for stair-chair assist if power fails.", 
-                status: "Warning" 
-            },
-            { 
-                name: "Linda Matthews", 
-                score: 35, 
-                triage: "Dermatitis", 
-                history: "Prescription refill requested but non-urgent.", 
-                ai: "Queue pharmacy delivery for Monday morning.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Thomas Caldwell", 
-                score: 52, 
-                triage: "Type 2 Diabetes", 
-                history: "Blood glucose levels synced at 140 mg/dL. Insulin supply adequate for 5 days.", 
-                ai: "Routine data logging. No immediate intervention.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Priya Patel", 
-                score: 16, 
-                triage: "Seasonal Allergies", 
-                history: "Air quality alert in effect. Patient has sufficient antihistamines.", 
-                ai: "Send notification to keep windows closed.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Harold Simmons", 
-                score: 88, 
-                triage: "End-Stage Renal Disease", 
-                history: "Missed scheduled dialysis yesterday due to road closure. Potassium levels rising.", 
-                ai: "High Priority. Coordinate medical transport for emergency dialysis.", 
-                status: "Critical" 
-            },
-            { 
-                name: "Naomi Chen", 
-                score: 14, 
-                triage: "Pediatric Wellness", 
-                history: "No current conditions. Family has checked in as safe.", 
-                ai: "Status logged as Safe.", 
-                status: "Stable" 
-            },
-            { 
-                name: "William Foster", 
-                score: 57, 
-                triage: "Hypertension", 
-                history: "BP 150/95. Slightly elevated due to environmental stress.", 
-                ai: "Push notification for medication adherence check.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Rosa Martinez", 
-                score: 41, 
-                triage: "Asthma", 
-                history: "Inhaler usage normal. No acute attacks reported in 48 hours.", 
-                ai: "Monitor local humidity levels.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Michael Turner", 
-                score: 33, 
-                triage: "Sprained Ankle", 
-                history: "Injury sustained while preparing property. Mobility reduced but not critical.", 
-                ai: "Advise elevation and ice.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Fatima Hassan", 
-                score: 21, 
-                triage: "Migraine", 
-                history: "Episode resolved. Patient is resting.", 
-                ai: "No action needed.", 
-                status: "Stable" 
-            },
-            { 
-                name: "George Whitfield", 
-                score: 79, 
-                triage: "Congestive Heart Failure", 
-                history: "Weight gain of 3lbs reported in 24 hours. Edema worsening.", 
-                ai: "Video consult recommended immediately to adjust diuretics.", 
-                status: "Warning" 
-            },
-            { 
-                name: "Emily Sanders", 
-                score: 12, 
-                triage: "General Wellness", 
-                history: "Annual physical pending.", 
-                ai: "Schedule reminder sent.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Samuel Greene", 
-                score: 55, 
-                triage: "Rheumatoid Arthritis", 
-                history: "Reported joint pain flare-up due to barometric pressure changes.", 
-                ai: "Flag for pharmacy check-in post-storm.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Nora Klein", 
-                score: 38, 
-                triage: "Hypothyroidism", 
-                history: "Meds synced. Dosage stable.", 
-                ai: "Routine monitoring.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Paul Anderson", 
-                score: 44, 
-                triage: "Back Pain", 
-                history: "Managing with OTC meds. No mobility impact.", 
-                ai: "None.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Yvonne Dubois", 
-                score: 73, 
-                triage: "Alzheimer's / Dementia", 
-                history: "Smart lock offline in Sector 5. Caregiver phone unreachable.", 
-                ai: "Dispatch community welfare check officer to verify location.", 
-                status: "Warning" 
-            },
-            { 
-                name: "Kevin Morales", 
-                score: 19, 
-                triage: "Dental Pain", 
-                history: "Scheduled for extraction next week.", 
-                ai: "None.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Margaret Liu", 
-                score: 75, 
-                triage: "Oxygen Dependency", 
-                history: "Concentrator battery backup failed self-test. Storm surge likely to cut grid power.", 
-                ai: "Dispatch priority battery replacement unit.", 
-                status: "Warning" 
-            },
-            { 
-                name: "Jonathan Price", 
-                score: 36, 
-                triage: "Influenza Recovery", 
-                history: "Fever broken. Hydration levels good.", 
-                ai: "Mark as recovering.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Sofia Alvarez", 
-                score: 15, 
-                triage: "Nutritional Monitoring", 
-                history: "Weight stable.", 
-                ai: "None.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Dennis Porter", 
-                score: 77, 
-                triage: "Chronic Wound", 
-                history: "Leg ulcer dressing wet due to roof leak in home.", 
-                ai: "Schedule visiting nurse for dressing change within 12 hours to prevent infection.", 
-                status: "Warning" 
-            },
-            { 
-                name: "Hannah Rosen", 
-                score: 17, 
-                triage: "Vision Impairment", 
-                history: "Safe in home with family.", 
-                ai: "None.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Victor Nguyen", 
-                score: 42, 
-                triage: "Acid Reflux", 
-                history: "Meds supply good.", 
-                ai: "None.", 
-                status: "Stable" 
-            },
-            { 
-                name: "Carol Bennett", 
-                score: 92, 
-                triage: "Cardiac Arrhythmia", 
-                history: "Pacemaker reporting irregular signals via remote link. Storm interference possible.", 
-                ai: "CRITICAL: Ambulance dispatched for immediate cardiac assessment.", 
-                status: "Critical" 
-            }
+            { name: "Frank Harrison", score: 96, triage: "Ventilator Dependent", history: "Power grid failure detected in Sector 8. Backup generator fuel is critical (estimated 2 hours remaining).", ai: "Immediate extraction required. Dispatch ALS unit for transport to City General.", status: "Critical" },
+            { name: "Maria Lopez", score: 28, triage: "Routine Prenatal", history: "Patient is sheltered in place. Vital signs synced via wearable are normal.", ai: "No action required. Schedule virtual check-in for post-storm assessment.", status: "Stable" },
+            { name: "Daniel Whitmore", score: 22, triage: "Minor Laceration", history: "Injury treated locally. Infection risk is low. Supplies are adequate.", ai: "Monitor via app. Send wound care reminder in 24 hours.", status: "Stable" },
+            { name: "Evelyn Brooks", score: 60, triage: "COPD Management", history: "Oxygen tank levels at 30%. Delivery truck delayed by flooding in Zone 3.", ai: "Reroute Med-Kit Drone 14 to this location for canister resupply.", status: "Warning" },
+            { name: "James O'Connell", score: 48, triage: "Post-Op Recovery", history: "Knee replacement surgery 3 days ago. Mobility is limited but safe in ground-floor housing.", ai: "Flag for mobility assistance if evacuation order is upgraded to Zone 4.", status: "Stable" },
+            { name: "Aisha Rahman", score: 18, triage: "Mild Anxiety", history: "Reported stress due to storm alerts. Heart rate slightly elevated but stable.", ai: "Automated wellness check sent via SMS.", status: "Stable" },
+            { name: "Robert Jenkins", score: 70, triage: "Mobility Impairment", history: "Wheelchair user on 4th floor. Building elevator power is fluctuating.", ai: "Alert local fire captain. prioritize for stair-chair assist if power fails.", status: "Warning" },
+            { name: "Linda Matthews", score: 35, triage: "Dermatitis", history: "Prescription refill requested but non-urgent.", ai: "Queue pharmacy delivery for Monday morning.", status: "Stable" },
+            { name: "Thomas Caldwell", score: 52, triage: "Type 2 Diabetes", history: "Blood glucose levels synced at 140 mg/dL. Insulin supply adequate for 5 days.", ai: "Routine data logging. No immediate intervention.", status: "Stable" },
+            { name: "Priya Patel", score: 16, triage: "Seasonal Allergies", history: "Air quality alert in effect. Patient has sufficient antihistamines.", ai: "Send notification to keep windows closed.", status: "Stable" },
+            { name: "Harold Simmons", score: 88, triage: "End-Stage Renal Disease", history: "Missed scheduled dialysis yesterday due to road closure. Potassium levels rising.", ai: "High Priority. Coordinate medical transport for emergency dialysis.", status: "Critical" },
+            { name: "Naomi Chen", score: 14, triage: "Pediatric Wellness", history: "No current conditions. Family has checked in as safe.", ai: "Status logged as Safe.", status: "Stable" },
+            { name: "William Foster", score: 57, triage: "Hypertension", history: "BP 150/95. Slightly elevated due to environmental stress.", ai: "Push notification for medication adherence check.", status: "Stable" },
+            { name: "Rosa Martinez", score: 41, triage: "Asthma", history: "Inhaler usage normal. No acute attacks reported in 48 hours.", ai: "Monitor local humidity levels.", status: "Stable" },
+            { name: "Michael Turner", score: 33, triage: "Sprained Ankle", history: "Injury sustained while preparing property. Mobility reduced but not critical.", ai: "Advise elevation and ice.", status: "Stable" },
+            { name: "Fatima Hassan", score: 21, triage: "Migraine", history: "Episode resolved. Patient is resting.", ai: "No action needed.", status: "Stable" },
+            { name: "George Whitfield", score: 79, triage: "Congestive Heart Failure", history: "Weight gain of 3lbs reported in 24 hours. Edema worsening.", ai: "Video consult recommended immediately to adjust diuretics.", status: "Warning" },
+            { name: "Emily Sanders", score: 12, triage: "General Wellness", history: "Annual physical pending.", ai: "Schedule reminder sent.", status: "Stable" },
+            { name: "Samuel Greene", score: 55, triage: "Rheumatoid Arthritis", history: "Reported joint pain flare-up due to barometric pressure changes.", ai: "Flag for pharmacy check-in post-storm.", status: "Stable" },
+            { name: "Nora Klein", score: 38, triage: "Hypothyroidism", history: "Meds synced. Dosage stable.", ai: "Routine monitoring.", status: "Stable" },
+            { name: "Paul Anderson", score: 44, triage: "Back Pain", history: "Managing with OTC meds. No mobility impact.", ai: "None.", status: "Stable" },
+            { name: "Yvonne Dubois", score: 73, triage: "Alzheimer's / Dementia", history: "Smart lock offline in Sector 5. Caregiver phone unreachable.", ai: "Dispatch community welfare check officer to verify location.", status: "Warning" },
+            { name: "Kevin Morales", score: 19, triage: "Dental Pain", history: "Scheduled for extraction next week.", ai: "None.", status: "Stable" },
+            { name: "Margaret Liu", score: 75, triage: "Oxygen Dependency", history: "Concentrator battery backup failed self-test. Storm surge likely to cut grid power.", ai: "Dispatch priority battery replacement unit.", status: "Warning" },
+            { name: "Jonathan Price", score: 36, triage: "Influenza Recovery", history: "Fever broken. Hydration levels good.", ai: "Mark as recovering.", status: "Stable" },
+            { name: "Sofia Alvarez", score: 15, triage: "Nutritional Monitoring", history: "Weight stable.", ai: "None.", status: "Stable" },
+            { name: "Dennis Porter", score: 77, triage: "Chronic Wound", history: "Leg ulcer dressing wet due to roof leak in home.", ai: "Schedule visiting nurse for dressing change within 12 hours to prevent infection.", status: "Warning" },
+            { name: "Hannah Rosen", score: 17, triage: "Vision Impairment", history: "Safe in home with family.", ai: "None.", status: "Stable" },
+            { name: "Victor Nguyen", score: 42, triage: "Acid Reflux", history: "Meds supply good.", ai: "None.", status: "Stable" },
+            { name: "Carol Bennett", score: 92, triage: "Cardiac Arrhythmia", history: "Pacemaker reporting irregular signals via remote link. Storm interference possible.", ai: "CRITICAL: Ambulance dispatched for immediate cardiac assessment.", status: "Critical" }
         ];
 
         let currentIndex = 0;
         // Shuffle patients once on load
         const patients = rawPatients.sort(() => 0.5 - Math.random());
 
-        // 3. STYLE LOGIC
+        // STYLE LOGIC
         function getStyles(status, score) {
             if (status === "Critical" || score > 80) {
                 return {
-                    badgeBg: "bg-status-bg_red", badgeText: "text-status-red",
-                    spinnerColor: "border-status-red", spinnerAnim: "animate-spin-slow",
+                    badgeBg: "bg-status-bg_red", 
+                    badgeText: "text-status-red",
+                    
+                    // This sets the MAIN ring border to red
+                    spinnerColor: "border-status-red", 
+                    
+                    // Pulsing effect
+                    spinnerAnim: "animate-pulse", 
                     numberClass: "text-status-red drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
                 };
             }
             if (status === "Warning") {
                 return {
-                    badgeBg: "bg-yellow-100", badgeText: "text-yellow-600",
-                    spinnerColor: "border-yellow-500", spinnerAnim: "",
+                    badgeBg: "bg-yellow-100", 
+                    badgeText: "text-yellow-600",
+                    
+                    // This sets the MAIN ring border to yellow
+                    spinnerColor: "border-yellow-500", 
+                    
+                    spinnerAnim: "", 
                     numberClass: "text-brand-dark"
                 };
             }
             return {
-                badgeBg: "bg-green-100", badgeText: "text-status-green",
-                spinnerColor: "border-status-green", spinnerAnim: "",
+                badgeBg: "bg-green-100", 
+                badgeText: "text-status-green",
+                
+                // This sets the MAIN ring border to green
+                spinnerColor: "border-status-green", 
+                
+                spinnerAnim: "", 
                 numberClass: "text-brand-dark"
             };
         }
 
-        // 4. RENDER FUNCTION
-        function renderPatient() {
+        // RENDER FUNCTION
+        function renderPatient(direction = 'next') {
             const p = patients[currentIndex];
-            const style = getStyles(p.status, p.score);
-            const container = document.getElementById('patient-display');
+            const score = p.score || p.risk; 
+            const status = p.status || (score > 80 ? "Critical" : score > 60 ? "Warning" : "Stable");
+            const style = getStyles(status, score);
             
+            const animationClass = direction === 'next' ? 'animate-slide-right' : 'animate-slide-left';
 
-            // Inject Card HTML
+            // Update Counter
+            const countEl = document.getElementById('patient-count');
+            if(countEl) countEl.innerText = `Patient ${currentIndex + 1} / ${patients.length}`;
+
+            const container = document.getElementById('patient-display');
+
             container.innerHTML = `
-            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
+            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden ${animationClass}">
                 <div class="p-8 flex items-center gap-8">
-                    <div class="relative flex items-center justify-center w-24 h-24 rounded-full bg-gray-50 border-4 border-gray-100">
-                        <span class="text-3xl font-black ${style.numberClass} z-10 relative">${p.score}%</span>
-                        <div class="absolute inset-0 rounded-full border-t-4 ${style.spinnerColor} ${style.spinnerAnim}"></div>
+                    
+                    <div class="relative flex items-center justify-center w-24 h-24 rounded-full bg-gray-50 border-4 ${style.spinnerColor} ${style.spinnerAnim}">
+                        <span class="text-3xl font-black ${style.numberClass} z-10 relative">${score}%</span>
                     </div>
                     
                     <div class="flex-1">
                         <div class="flex items-center gap-3 mb-2">
                             <h3 class="text-3xl font-black text-brand-dark tracking-tight">${p.name}</h3>
                             <span class="px-3 py-1 ${style.badgeBg} ${style.badgeText} text-[10px] font-bold rounded-full uppercase tracking-wide">
-                                ${p.status}
+                                ${status}
                             </span>
                         </div>
                         <p class="text-brand-muted text-base font-medium">Triage: ${p.triage}</p>
@@ -453,34 +286,28 @@
                 </div>
             </div>`;
             
-            // Refresh icons inside the new card
             lucide.createIcons();
         }
 
-        // 5. EVENT LISTENERS
+        // EVENT LISTENERS
         document.getElementById('next-btn').addEventListener('click', () => {
-            // Increment index, loop back to 0 if at the end
             currentIndex = (currentIndex + 1) % patients.length;
-            renderPatient();
+            renderPatient('next');
         });
 
         document.getElementById('prev-btn').addEventListener('click', () => {
-            // Decrement index, loop to end if at 0
             currentIndex = (currentIndex - 1 + patients.length) % patients.length;
-            renderPatient();
+            renderPatient('prev');
         });
 
-        // Initial Render
-        renderPatient();
-
-        // FORMAT: "Sat, Jan 31"
+        // DATE LOGIC
         const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
-        document.getElementById('today-date').innerText = new Date().toLocaleDateString('en-US', dateOptions);
+        const dateEl = document.getElementById('today-date');
+        if(dateEl) dateEl.innerText = new Date().toLocaleDateString('en-US', dateOptions);
+
+        // Initial Render
+        renderPatient('next');
     </script>
 
-    <style>
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-    </style>
 </body>
 </html>
