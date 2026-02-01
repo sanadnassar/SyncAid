@@ -649,6 +649,40 @@ main {
     border-color: rgba(64, 87, 81, 0.25);
 }
 
+.appointment-block.swap-animate {
+    animation: swapPulse 0.7s ease;
+}
+
+.appointment-block.swap-ghost {
+    animation: none;
+}
+
+.appointment-block.swap-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.appointment-block.swap-placeholder {
+    opacity: 0.35;
+    filter: saturate(0.85);
+    pointer-events: none;
+}
+
+@keyframes swapPulse {
+    0% {
+        transform: translateY(-6px) scale(0.96);
+        box-shadow: 0 0 0 rgba(64, 87, 81, 0);
+    }
+    50% {
+        transform: translateY(0) scale(1.02);
+        box-shadow: 0 12px 24px rgba(64, 87, 81, 0.22);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 6px 16px rgba(64, 87, 81, 0.12);
+    }
+}
+
 .day-number {
     font-size: 12px;
     font-weight: 600;
