@@ -1,4 +1,4 @@
-## SyncAid
+## SyncAid - WDS Hackathon Project
 SyncAid is an AI-powered healthcare triage and scheduling platform designed to prevent missed appointments, prioritize high-risk patients, and dynamically adapt clinic schedules in real time. By combining predictive modeling, environmental data, and patient vulnerability signals, SyncAid transforms traditional reactive scheduling into a proactive care system.
 
 ## Why SyncAid exists
